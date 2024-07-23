@@ -1,6 +1,8 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 )
 
@@ -13,4 +15,8 @@ func apiRoutes(g *echo.Group) {
 
 func init() {
 	apiRoutes(apiGroup)
+
+	APIServer.GET("", func(c echo.Context) error {
+		return c.HTML(http.StatusOK, homepageHTML)
+	})
 }
