@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// TODO(bruce): Update description
 // deployCmd represents the deploy command
 var deployCmd = &cobra.Command{
 	Use:   "deploy",

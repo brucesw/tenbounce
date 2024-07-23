@@ -6,6 +6,7 @@ import (
 	"tenbounce/api"
 )
 
+// TODO(bruce): Update description
 // startCmd represents the start command
 var startCmd = &cobra.Command{
 	Use:   "start",
