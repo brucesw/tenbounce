@@ -3,9 +3,7 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"net/http"
-
-	"github.com/labstack/echo/v4"
+	"tenbounce/api"
 )
 
 // startCmd represents the start command
@@ -19,12 +17,7 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var e = echo.New()
-		e.GET("/", func(c echo.Context) error {
-			return c.String(http.StatusOK, "Hello, World!")
-		})
-
-		e.Logger.Fatal(e.Start(":1323"))
+		api.APIServer.Logger.Fatal(api.APIServer.Start(":1323"))
 	},
 }
 
