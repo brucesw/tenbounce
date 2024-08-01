@@ -2,7 +2,6 @@ package model
 
 import "time"
 
-type PointTypeID string
 type PointValue float64
 
 type Point struct {
@@ -15,4 +14,6 @@ type Point struct {
 	PointTypeID PointTypeID `json:"pointTypeID"`
 
 	Value PointValue `json:"value"`
+
+	// TODO(bruce): need CreatedBy?
 }

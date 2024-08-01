@@ -1,7 +1,11 @@
 package model
 
-type PointType struct {
-	ID string `json:"id"`
+// TODO(bruce): am I going overboard with these types?
+type PointTypeID string
+type PointTypeName string
 
-	Name string `json:"name"`
+type PointType struct {
+	ID PointTypeID `json:"id"`
+
+	Name PointTypeName `json:"name"`
 }
