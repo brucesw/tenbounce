@@ -50,10 +50,11 @@ func NewCreatePointResponse(p model.Point) (CreatePointResponse, error) {
 	return cpr, nil
 }
 
-func (cpb CreatePointBody) Point() (model.Point, error) {
+func (cpb CreatePointBody) Point(user model.User) (model.Point, error) {
 	var point = model.Point{
+		// ID set downstream
 		Timestamp:   time.Now(), // TODO(bruce): introduce and use nower
-		UserID:      BSWUserID,
+		UserID:      user.ID,
 		PointTypeID: cpb.PointTypeID,
 		Value:       cpb.Value,
 	}
@@ -68,7 +69,11 @@ func createPoint(c echo.Context) error {
 
 	if err := c.Bind(pointBody); err != nil {
 		return c.JSON(http.StatusBadRequest, nil)
-	} else if point, err := pointBody.Point(); err != nil {
+	} else if userIDCookie, err := c.Cookie(UserIDCookieName); err != nil {
+		return c.JSON(http.StatusInternalServerError, nil)
+	} else if user, err := GetUser(userIDCookie.Value); err != nil {
+		return c.JSON(http.StatusInternalServerError, nil)
+	} else if point, err := pointBody.Point(user); err != nil {
 		return c.JSON(http.StatusInternalServerError, nil)
 	} else if pointTypes, err := GetPointTypesFromDB(); err != nil {
 		return c.JSON(http.StatusInternalServerError, nil)
