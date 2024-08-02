@@ -68,21 +68,21 @@ func createPoint(c echo.Context) error {
 	var pointBody = &CreatePointBody{}
 
 	if err := c.Bind(pointBody); err != nil {
-		return c.JSON(http.StatusBadRequest, nil)
+		return c.JSON(http.StatusBadRequest, "invalid point body")
 	} else if userIDCookie, err := c.Cookie(UserIDCookieName); err != nil {
-		return c.JSON(http.StatusInternalServerError, nil)
+		return c.JSON(http.StatusInternalServerError, "get user id cookie")
 	} else if user, err := GetUser(userIDCookie.Value); err != nil {
-		return c.JSON(http.StatusInternalServerError, nil)
+		return c.JSON(http.StatusInternalServerError, "get user")
 	} else if point, err := pointBody.Point(user); err != nil {
-		return c.JSON(http.StatusInternalServerError, nil)
+		return c.JSON(http.StatusInternalServerError, "pointbody point")
 	} else if pointTypes, err := GetPointTypesFromDB(); err != nil {
-		return c.JSON(http.StatusInternalServerError, nil)
+		return c.JSON(http.StatusInternalServerError, "get point types from db")
 	} else if err = validPointTypeID(point, pointTypes); err != nil {
-		return c.JSON(http.StatusInternalServerError, nil)
+		return c.JSON(http.StatusInternalServerError, "valid point type id")
 	} else if err = SavePointToDB(&point); err != nil {
-		return c.JSON(http.StatusInternalServerError, nil)
+		return c.JSON(http.StatusInternalServerError, "save point to db")
 	} else if cpr, err := NewCreatePointResponse(point); err != nil {
-		return c.JSON(http.StatusInternalServerError, nil)
+		return c.JSON(http.StatusInternalServerError, "new create point response")
 	} else {
 		return c.JSON(http.StatusOK, cpr)
 	}

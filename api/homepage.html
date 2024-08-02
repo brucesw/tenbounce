@@ -1,11 +1,58 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decimal Input Form</title>
+    <script>
+        function sendPostRequest() {
+            // Get the value from the input box
+            const decimalValue = document.getElementById('decimalInput').value;
+
+            // Get the selected pointTypeID from the dropdown
+            const pointTypeID = document.getElementById('pointTypeDropdown').value;
+
+            // Create the data object to send
+            const data = {
+                pointTypeID: pointTypeID,
+                value: Number(decimalValue)
+            };
+
+            // Send a POST request
+            fetch('http://localhost:1323/api/points', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+        }
+    </script>
+</head>
 
 <body>
-
-    <h1>My First Heading</h1>
-    <p>My first paragraph.</p>
-
+    <h1>Enter a Decimal Number</h1>
+    <form onsubmit="event.preventDefault(); sendPostRequest();">
+        <label for="pointTypeDropdown">Select Point Type:</label>
+        <select id="pointTypeDropdown" name="pointTypeDropdown" required>
+            <option value="4e4b2b1c-5063-425a-a409-71b431068f78">Compulsory Routine</option>
+            <option value="0d1b30ef-00d4-41d6-8581-b8d554752816">Optional Routine</option>
+            <option value="dade4383-d869-4562-a680-88cb38f9972a">Tenbounce</option>
+            <option value="8640f8e9-0cf6-4be4-b182-d40c21a44067">Ten Doubles</option>
+        </select>
+        <br><br>
+        <label for="decimalInput">Decimal Number:</label>
+        <input type="text" id="decimalInput" name="decimalInput" pattern="[0-9]*\.?[0-9]+" required>
+        <button type="submit">Submit</button>
+    </form>
 </body>
 
 </html>

@@ -34,6 +34,7 @@ func userRoutes(g *echo.Group) {
 			var cookie = new(http.Cookie)
 			cookie.Name = UserIDCookieName
 			cookie.Value = hardcodedUser.ID
+			cookie.Path = "/"
 			// TODO(bruce): User nower, determine expiration time
 			cookie.Expires = time.Now().Add(24 * time.Hour)
 			c.SetCookie(cookie)
