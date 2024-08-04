@@ -49,22 +49,8 @@ func userRoutes(g *echo.Group) {
 var hardcodedUsers_bytes []byte
 
 func init() {
-
 	var err = json.Unmarshal(hardcodedUsers_bytes, &hardcodedUsers)
 	if err != nil {
 		panic(fmt.Errorf("unmarshal hardcoded users %w", err))
 	}
-}
-
-// FUTURE STORE METHODS
-
-// TODO(bruce): use store
-func GetUser(userID string) (model.User, error) {
-	for _, hardcodedUser := range hardcodedUsers {
-		if hardcodedUser.ID == userID {
-			return hardcodedUser.User, nil
-		}
-	}
-
-	return model.User{}, fmt.Errorf("user '%s' not found", userID)
 }
