@@ -16,11 +16,13 @@
 - UI file structure
 
 ## P-lan
-
+- [ ] pros and cons discussion of previous interfaces
 - [ ] design db interface
   - [ ] two implementations: in memory & postgres
   - [ ] package layout
   - [ ] interface layout (composition)
+  - [ ] layers?
+    - [ ] powerful base level + queries, wrappers with conveniences
 - [ ] where does the object attach?
 - [ ] how to access object in methods?
 - [ ] implement in-memory db
