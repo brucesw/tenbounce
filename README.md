@@ -13,6 +13,7 @@
 - non-success API responses
 - non-API tests
 - API tests
+- UI file structure
 
 ## P-lan
 
