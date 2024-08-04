@@ -1,7 +1,6 @@
 package api
 
 import (
-	_ "embed"
 	"fmt"
 	"net/http"
 	"tenbounce/model"
@@ -12,11 +11,10 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-const UserIDCookieName string = "UserID"
+const UserIDCookieName string = "TENBOUNCE_USER_ID"
 
-// TODO(bruce): XXX
-var hardcodedUsers []userWithSecretURL
-
+// Until user creation and auth is in place, leverage hardcoded
+// list of users, each with a secret URL used for login
 type userWithSecretURL struct {
 	model.User
 
@@ -26,13 +24,14 @@ type userWithSecretURL struct {
 func userRoutes(g *echo.Group) {
 	var userRoutes = g.Group("/users")
 
-	// TODO(bruce): XXX
+	// TODO(bruce): XXX one route per user for login
 	var setUserRoutes = userRoutes.Group("/set_user")
 
 	for _, hardcodedUser := range hardcodedUsers {
 		setUserRoutes.GET("/"+hardcodedUser.SecretURL, func(c echo.Context) error {
 			var cookie = new(http.Cookie)
 			cookie.Name = UserIDCookieName
+			// TODO(bruce): cookie value needs to have some sort of hash in it for security + verification middleware needed
 			cookie.Value = hardcodedUser.ID
 			cookie.Path = "/"
 			// TODO(bruce): User nower, determine expiration time
@@ -44,9 +43,6 @@ func userRoutes(g *echo.Group) {
 	}
 
 }
-
-//go:embed user_secrets.json
-var hardcodedUsers_bytes []byte
 
 func init() {
 	var err = json.Unmarshal(hardcodedUsers_bytes, &hardcodedUsers)
