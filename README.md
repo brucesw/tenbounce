@@ -25,3 +25,7 @@
 - [ ] how to access object in methods?
 - [ ] implement in-memory db
 - [ ] stretch: jumpstart postgres
+  - [ ] [database/sql](https://pkg.go.dev/database/sql) seems to be the goto
+  - [ ] [squirrel](https://github.com/Masterminds/squirrel) also exists
+  - [ ] local postgres
+  - [ ] API route with example db interaction
