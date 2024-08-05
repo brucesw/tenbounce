@@ -20,11 +20,13 @@ var APIServer = echo.New()
 var apiGroup = APIServer.Group("/api")
 
 func apiRoutes(g *echo.Group) {
-	pointRoutes(g)
 	userRoutes(g)
-	pointTypeRoutes(g)
-
 	tempPostgresRoute(g)
+
+	// Routes require user to be set
+	g.Use(SetUserMiddleware)
+	pointRoutes(g)
+	pointTypeRoutes(g)
 }
 
 func init() {
