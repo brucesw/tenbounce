@@ -64,6 +64,12 @@ func (cpb CreatePointBody) Point(user model.User) (model.Point, error) {
 // TODO(bruce): document
 // TODO(bruce): responses
 func createPoint(c echo.Context) error {
+	var ctx = c.Request().Context()
+	var userID = ctx.Value(ctxKey_UserID("userID"))
+	// TODO(bruce): replace cookie read with user id ctx read
+
+	fmt.Printf("userID: %s\n", userID)
+
 	var pointBody = &CreatePointBody{}
 
 	if err := c.Bind(pointBody); err != nil {
@@ -140,6 +146,11 @@ func NewListPointsResponse(points []model.Point, pointTypes []model.PointType) (
 // TODO(bruce): document
 // TODO(bruce): responses
 func listPoints(c echo.Context) error {
+	// TODO(bruce): replace cookie read with user id ctx read
+	var ctx = c.Request().Context()
+	var userID = ctx.Value(ctxKey_UserID("userID"))
+
+	fmt.Printf("userID: %s\n", userID)
 	if userIDCookie, err := c.Cookie(UserIDCookieName); err != nil {
 		return c.JSON(http.StatusInternalServerError, "get user id cookie")
 	} else if user, err := GetUser(userIDCookie.Value); err != nil {
