@@ -4,7 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Decimal Input Form</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <script>
+      let pointsChart; // Global variable to hold the chart instance
+
       function sendPostRequest() {
         // Get the value from the input box
         const decimalValue = document.getElementById("decimalInput").value;
@@ -29,6 +35,7 @@
           .then((response) => response.json())
           .then((data) => {
             console.log("Success:", data);
+            fetchPointsData();
           })
           .catch((error) => {
             console.error("Error:", error);
@@ -54,7 +61,115 @@
           });
       }
 
-      window.onload = populateDropdown;
+      function fetchPointsData() {
+        fetch("http://localhost:1323/api/points")
+          .then((response) => response.json())
+          .then((data) => {
+            populateTable(data);
+            updateChart(data);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+
+      function populateTable(data) {
+        const table = document.getElementById("pointsTable");
+        table.innerHTML = ""; // Clear existing table data
+
+        const header = `
+                <tr>
+                    <th>ID</th>
+                    <th>Timestamp</th>
+                    <th>User ID</th>
+                    <th>Point Type ID</th>
+                    <th>Value</th>
+                    <th>Point Type Name</th>
+                </tr>
+            `;
+        table.insertAdjacentHTML("beforeend", header);
+
+        data.forEach((point) => {
+          const row = `
+                    <tr>
+                        <td>${point.id}</td>
+                        <td>${new Date(point.timestamp).toLocaleString()}</td>
+                        <td>${point.userID}</td>
+                        <td>${point.pointTypeID}</td>
+                        <td>${point.value}</td>
+                        <td>${point.pointTypeName}</td>
+                    </tr>
+                `;
+          table.insertAdjacentHTML("beforeend", row);
+        });
+      }
+
+      function updateChart(data) {
+        const ctx = document.getElementById("pointsChart").getContext("2d");
+        const uniquePointTypeIDs = [
+          ...new Set(data.map((point) => point.pointTypeID)),
+        ];
+
+        const chartData = uniquePointTypeIDs.map((id) => {
+          return {
+            label: data.find((point) => point.pointTypeID === id).pointTypeName,
+            data: data
+              .filter((point) => point.pointTypeID === id)
+              .map((point) => ({
+                x: new Date(point.timestamp),
+                y: point.value,
+              })),
+            borderColor: getRandomColor(),
+            fill: false,
+            tension: 0.1,
+          };
+        });
+
+        if (pointsChart) {
+          pointsChart.destroy();
+        }
+
+        pointsChart = new Chart(ctx, {
+          type: "line",
+          data: {
+            datasets: chartData,
+          },
+          options: {
+            scales: {
+              x: {
+                type: "time",
+                time: {
+                  unit: "hour",
+                },
+                title: {
+                  display: true,
+                  text: "Timestamp",
+                },
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: "Value",
+                },
+              },
+            },
+          },
+        });
+      }
+
+      function getRandomColor() {
+        const letters = "0123456789ABCDEF";
+        let color = "#";
+        for (let i = 0; i < 6; i++) {
+          color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+      }
+
+      window.onload = () => {
+        populateDropdown();
+        fetchPointsData();
+      };
     </script>
   </head>
 
@@ -76,5 +191,11 @@
       />
       <button type="submit">Submit</button>
     </form>
+    <br />
+    <canvas id="pointsChart" width="400" height="200"></canvas>
+    <br />
+    <table id="pointsTable" border="1">
+      <!-- Table data will be populated here -->
+    </table>
   </body>
 </html>
