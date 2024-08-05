@@ -1,76 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Decimal Input Form</title>
     <script>
-        function sendPostRequest() {
-            // Get the value from the input box
-            const decimalValue = document.getElementById('decimalInput').value;
+      function sendPostRequest() {
+        // Get the value from the input box
+        const decimalValue = document.getElementById("decimalInput").value;
 
-            // Get the selected pointTypeID from the dropdown
-            const pointTypeID = document.getElementById('pointTypeDropdown').value;
+        // Get the selected pointTypeID from the dropdown
+        const pointTypeID = document.getElementById("pointTypeDropdown").value;
 
-            // Create the data object to send
-            const data = {
-                pointTypeID: pointTypeID,
-                value: Number(decimalValue)
-            };
+        // Create the data object to send
+        const data = {
+          pointTypeID: pointTypeID,
+          value: Number(decimalValue),
+        };
 
-            // Send a POST request
-            fetch('http://localhost:1323/api/points', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Success:', data);
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
-        }
+        // Send a POST request
+        fetch("http://localhost:1323/api/points", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Success:", data);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
 
-        function populateDropdown() {
-            fetch('http://localhost:1323/api/point_types')
-                .then(response => response.json())
-                .then(data => {
-                    const dropdown = document.getElementById('pointTypeDropdown');
-                    dropdown.innerHTML = ''; // Clear existing options
+      function populateDropdown() {
+        fetch("http://localhost:1323/api/point_types")
+          .then((response) => response.json())
+          .then((data) => {
+            const dropdown = document.getElementById("pointTypeDropdown");
+            dropdown.innerHTML = ""; // Clear existing options
 
-                    data.forEach(point => {
-                        const option = document.createElement('option');
-                        option.value = point.id;
-                        option.textContent = point.name;
-                        dropdown.appendChild(option);
-                    });
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
-        }
+            data.forEach((point) => {
+              const option = document.createElement("option");
+              option.value = point.id;
+              option.textContent = point.name;
+              dropdown.appendChild(option);
+            });
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
 
-        window.onload = populateDropdown;
+      window.onload = populateDropdown;
     </script>
-</head>
+  </head>
 
-<body>
+  <body>
     <h1>Enter a Decimal Number</h1>
     <form onsubmit="event.preventDefault(); sendPostRequest();">
-        <label for="pointTypeDropdown">Select Point Type:</label>
-        <select id="pointTypeDropdown" name="pointTypeDropdown" required>
-            <!-- Options will be populated here -->
-        </select>
-        <br><br>
-        <label for="decimalInput">Decimal Number:</label>
-        <input type="text" id="decimalInput" name="decimalInput" pattern="[0-9]*\.?[0-9]+" required>
-        <button type="submit">Submit</button>
+      <label for="pointTypeDropdown">Select Point Type:</label>
+      <select id="pointTypeDropdown" name="pointTypeDropdown" required>
+        <!-- Options will be populated here -->
+      </select>
+      <br /><br />
+      <label for="decimalInput">Decimal Number:</label>
+      <input
+        type="text"
+        id="decimalInput"
+        name="decimalInput"
+        pattern="[0-9]*\.?[0-9]+"
+        required
+      />
+      <button type="submit">Submit</button>
     </form>
-</body>
-
+  </body>
 </html>
