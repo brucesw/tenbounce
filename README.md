@@ -13,19 +13,20 @@
 - non-success API responses
 - non-API tests
 - API tests
-- UI file structure
+- UI file structure -- static directory and handlers; see http.FileServer
 
 ## P-lan
-- [ ] pros and cons discussion of previous interfaces
-- [ ] design db interface
-  - [ ] two implementations: in memory & postgres
-  - [ ] package layout
-  - [ ] interface layout (composition)
+- [X] pros and cons discussion of previous interfaces
+- [X] design db interface
+  - [X] two implementations: in memory & postgres
+  - [X] package layout
+  - [X] interface layout (composition)
   - [ ] layers?
     - [ ] powerful base level + queries, wrappers with conveniences
-- [ ] where does the object attach?
-- [ ] how to access object in methods?
-- [ ] implement in-memory db
+- [X] where does the object attach?
+- [X] how to access object in methods?
+- [X] implement in-memory db
+- [ ] SQLite db
 - [ ] stretch: jumpstart postgres
   - [ ] [database/sql](https://pkg.go.dev/database/sql) seems to be the goto
   - [ ] [squirrel](https://github.com/Masterminds/squirrel) also exists

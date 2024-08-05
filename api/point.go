@@ -11,11 +11,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func pointRoutes(g *echo.Group) {
+func pointRoutes(g *echo.Group, h HandlerClx) {
 	var pointRoutes = g.Group("/points")
 
-	pointRoutes.POST("", createPoint)
-	pointRoutes.GET("", listPoints)
+	pointRoutes.POST("", h.createPoint)
+	pointRoutes.GET("", h.listPoints)
 }
 
 // TODO(bruce): Share types with db?
@@ -63,7 +63,7 @@ func (cpb CreatePointBody) Point(user model.User) (model.Point, error) {
 
 // TODO(bruce): document
 // TODO(bruce): responses
-func createPoint(c echo.Context) error {
+func (h HandlerClx) createPoint(c echo.Context) error {
 	var ctx = c.Request().Context()
 	var userID = ctx.Value(ctxKey_UserID("userID"))
 	// TODO(bruce): replace cookie read with user id ctx read
@@ -76,15 +76,15 @@ func createPoint(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "invalid point body")
 	} else if userIDCookie, err := c.Cookie(UserIDCookieName); err != nil {
 		return c.JSON(http.StatusInternalServerError, "get user id cookie")
-	} else if user, err := GetUser(userIDCookie.Value); err != nil {
+	} else if user, err := h.repository.GetUser(userIDCookie.Value); err != nil {
 		return c.JSON(http.StatusInternalServerError, "get user")
 	} else if point, err := pointBody.Point(user); err != nil {
 		return c.JSON(http.StatusInternalServerError, "pointbody point")
-	} else if pointTypes, err := GetPointTypesFromDB(); err != nil {
+	} else if pointTypes, err := h.repository.ListPointTypes(); err != nil {
 		return c.JSON(http.StatusInternalServerError, "get point types from db")
 	} else if err = validPointTypeID(point, pointTypes); err != nil {
 		return c.JSON(http.StatusInternalServerError, "valid point type id")
-	} else if err = SavePointToDB(&point); err != nil {
+	} else if err = h.repository.SavePoint(&point); err != nil {
 		return c.JSON(http.StatusInternalServerError, "save point to db")
 	} else if cpr, err := NewCreatePointResponse(point); err != nil {
 		return c.JSON(http.StatusInternalServerError, "new create point response")
@@ -145,7 +145,7 @@ func NewListPointsResponse(points []model.Point, pointTypes []model.PointType) (
 
 // TODO(bruce): document
 // TODO(bruce): responses
-func listPoints(c echo.Context) error {
+func (h HandlerClx) listPoints(c echo.Context) error {
 	// TODO(bruce): replace cookie read with user id ctx read
 	var ctx = c.Request().Context()
 	var userID = ctx.Value(ctxKey_UserID("userID"))
@@ -153,11 +153,11 @@ func listPoints(c echo.Context) error {
 	fmt.Printf("userID: %s\n", userID)
 	if userIDCookie, err := c.Cookie(UserIDCookieName); err != nil {
 		return c.JSON(http.StatusInternalServerError, "get user id cookie")
-	} else if user, err := GetUser(userIDCookie.Value); err != nil {
+	} else if user, err := h.repository.GetUser(userIDCookie.Value); err != nil {
 		return c.JSON(http.StatusInternalServerError, "get user")
-	} else if points, err := GetPointsFromDB(user.ID); err != nil {
+	} else if points, err := h.repository.ListPoints(user.ID); err != nil {
 		return c.JSON(http.StatusInternalServerError, nil)
-	} else if pointTypes, err := GetPointTypesFromDB(); err != nil {
+	} else if pointTypes, err := h.repository.ListPointTypes(); err != nil {
 		return c.JSON(http.StatusInternalServerError, nil)
 	} else if response, err := NewListPointsResponse(points, pointTypes); err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
