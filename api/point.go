@@ -140,7 +140,11 @@ func NewListPointsResponse(points []model.Point, pointTypes []model.PointType) (
 // TODO(bruce): document
 // TODO(bruce): responses
 func listPoints(c echo.Context) error {
-	if points, err := GetPointsFromDB(); err != nil {
+	if userIDCookie, err := c.Cookie(UserIDCookieName); err != nil {
+		return c.JSON(http.StatusInternalServerError, "get user id cookie")
+	} else if user, err := GetUser(userIDCookie.Value); err != nil {
+		return c.JSON(http.StatusInternalServerError, "get user")
+	} else if points, err := GetPointsFromDB(user.ID); err != nil {
 		return c.JSON(http.StatusInternalServerError, nil)
 	} else if pointTypes, err := GetPointTypesFromDB(); err != nil {
 		return c.JSON(http.StatusInternalServerError, nil)

@@ -30,6 +30,34 @@ var pointsInDB = []model.Point{
 		PointTypeID: "0d1b30ef-00d4-41d6-8581-b8d554752816",
 		Value:       19.00,
 	},
+	{
+		ID:          uuid.NewString(),
+		Timestamp:   time.Date(2024, time.July, 23, 10, 40, 0, 0, time.UTC),
+		UserID:      BSWUserID,
+		PointTypeID: "0d1b30ef-00d4-41d6-8581-b8d554752816",
+		Value:       18,
+	},
+	{
+		ID:          uuid.NewString(),
+		Timestamp:   time.Date(2024, time.August, 1, 10, 20, 0, 0, time.UTC),
+		UserID:      DTherrUserID,
+		PointTypeID: "4e4b2b1c-5063-425a-a409-71b431068f78",
+		Value:       20.21,
+	},
+	{
+		ID:          uuid.NewString(),
+		Timestamp:   time.Date(2024, time.August, 2, 10, 30, 0, 0, time.UTC),
+		UserID:      DTherrUserID,
+		PointTypeID: "4e4b2b1c-5063-425a-a409-71b431068f78",
+		Value:       21,
+	},
+	{
+		ID:          uuid.NewString(),
+		Timestamp:   time.Date(2024, time.August, 3, 10, 40, 0, 0, time.UTC),
+		UserID:      DTherrUserID,
+		PointTypeID: "0d1b30ef-00d4-41d6-8581-b8d554752816",
+		Value:       19.00,
+	},
 }
 
 // Functions with hardcoded that will eventually make up the store
@@ -59,8 +87,15 @@ func SavePointToDB(p *model.Point) error {
 	return nil
 }
 
-func GetPointsFromDB() ([]model.Point, error) {
-	return pointsInDB, nil
+func GetPointsFromDB(userID string) ([]model.Point, error) {
+	var points = []model.Point{}
+
+	for _, point := range pointsInDB {
+		if point.UserID == userID {
+			points = append(points, point)
+		}
+	}
+	return points, nil
 }
 
 // PointType
