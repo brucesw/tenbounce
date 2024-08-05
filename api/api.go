@@ -22,6 +22,7 @@ var apiGroup = APIServer.Group("/api")
 func apiRoutes(g *echo.Group) {
 	pointRoutes(g)
 	userRoutes(g)
+	pointTypeRoutes(g)
 
 	tempPostgresRoute(g)
 }
