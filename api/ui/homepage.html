@@ -28,7 +28,7 @@
           value: Number(decimalValue),
         };
 
-        fetch("http://localhost:1323/api/points", {
+        fetch("/api/points", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -46,7 +46,7 @@
       }
 
       function populateDropdown() {
-        fetch("http://localhost:1323/api/point_types")
+        fetch("/api/point_types")
           .then((response) => response.json())
           .then((data) => {
             const dropdown = document.getElementById("pointTypeDropdown");
@@ -65,7 +65,7 @@
       }
 
       function fetchPointsData() {
-        fetch("http://localhost:1323/api/points")
+        fetch("/api/points")
           .then((response) => response.json())
           .then((data) => {
             populateTable(data);
