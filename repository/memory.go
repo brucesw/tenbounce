@@ -129,9 +129,8 @@ func (r *Memory) ListPoints(userID string) ([]model.Point, error) {
 	return points, nil
 }
 
-func (r *Memory) SavePoint(p *model.Point) error {
+func (r *Memory) CreatePoint(p *model.Point) error {
 	p.ID = uuid.NewString()
-	fmt.Printf("saved to db: %+v", p)
 
 	r.points = append(r.points, *p)
 

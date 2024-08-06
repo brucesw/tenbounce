@@ -63,6 +63,22 @@ INSERT INTO users (id, name, email) VALUES
 ('123e4567-e89b-12d3-a456-426614174000', 'Derek Therrien', 'dtherrien2503@gmail.com'),
 ('987fbc97-4bed-5078-889f-8c6e44d66b00', 'Lourens Willekes', 'lourw95@gmail.com');
 */
+
+/*
+CREATE TABLE point_types (
+	id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+	name text
+);
+*/
+
+/*
+INSERT INTO point_types (id, name) VALUES
+('4e4b2b1c-5063-425a-a409-71b431068f78', 'Compulsory Routine'),
+('0d1b30ef-00d4-41d6-8581-b8d554752816', 'Optional Routine'),
+('dade4383-d869-4562-a680-88cb38f9972a', 'Tenboounce'),
+('8640f8e9-0cf6-4be4-b182-d40c21a44067', 'Ten Doubles');
+*/
+
 func tempPostgresRoute(g *echo.Group) {
 	g.POST("/postgres", func(c echo.Context) error {
 
