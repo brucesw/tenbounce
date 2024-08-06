@@ -16,6 +16,9 @@ func pointTypeRoutes(g *echo.Group, h HandlerClx) {
 // TODO(bruce): document
 // TODO(bruce): responses
 func (h HandlerClx) listPointTypes(c echo.Context) error {
+
+	// TODO(bruce): confirm valid user
+
 	if pointTypes, err := h.repository.ListPointTypes(); err != nil {
 		return c.JSON(http.StatusInternalServerError, "get point types from db")
 	} else {

@@ -11,8 +11,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-const UserIDCookieName string = "TENBOUNCE_USER_ID"
-
 // Until user creation and auth is in place, leverage hardcoded
 // list of users, each with a secret URL used for login
 type userWithSecretURL struct {
@@ -21,7 +19,7 @@ type userWithSecretURL struct {
 	SecretURL string `json:"secretURL"`
 }
 
-func setUserRoutes(g *echo.Group) {
+func setUserRoutes(g *echo.Group, h HandlerClx) {
 	var userRoutes = g.Group("/users")
 
 	// TODO(bruce): XXX one route per user for login
@@ -30,9 +28,14 @@ func setUserRoutes(g *echo.Group) {
 	for _, hardcodedUser := range hardcodedUsers {
 		setUserRoutes.GET("/"+hardcodedUser.SecretURL, func(c echo.Context) error {
 			var cookie = new(http.Cookie)
-			cookie.Name = UserIDCookieName
-			// TODO(bruce): cookie value needs to have some sort of hash in it for security + verification middleware needed
-			cookie.Value = hardcodedUser.ID
+			cookie.Name = userIDCookieName
+
+			cookieValue, err := userID_ToCookieValue(hardcodedUser.ID, h.signingSecret)
+			if err != nil {
+				return c.JSON(http.StatusInternalServerError, fmt.Errorf("user id to cookie value: %w", err))
+			}
+			cookie.Value = cookieValue
+
 			cookie.Path = "/"
 			// TODO(bruce): User nower, determine expiration time
 			cookie.Expires = time.Now().Add(24 * time.Hour)

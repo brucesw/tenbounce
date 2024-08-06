@@ -35,7 +35,12 @@ to quickly create a Cobra application.`,
 			panic("invalid repository")
 		}
 
-		var apiServer = api.NewTenbounceAPI(repo)
+		var signingSecret = viper.GetString("signing_secret")
+		if signingSecret == "" {
+			panic("invalid signing secret")
+		}
+
+		var apiServer = api.NewTenbounceAPI(repo, signingSecret)
 		apiServer.Logger.Fatal(apiServer.Start(":1323"))
 	},
 }
