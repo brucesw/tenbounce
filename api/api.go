@@ -21,7 +21,7 @@ type HandlerClx struct {
 }
 
 func apiRoutes(g *echo.Group, h HandlerClx) {
-	userRoutes(g)
+	setUserRoutes(g)
 	tempPostgresRoute(g)
 
 	// Routes require user to be set

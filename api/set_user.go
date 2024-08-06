@@ -21,7 +21,7 @@ type userWithSecretURL struct {
 	SecretURL string `json:"secretURL"`
 }
 
-func userRoutes(g *echo.Group) {
+func setUserRoutes(g *echo.Group) {
 	var userRoutes = g.Group("/users")
 
 	// TODO(bruce): XXX one route per user for login
