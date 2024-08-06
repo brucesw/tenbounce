@@ -2,6 +2,7 @@ package api
 
 import (
 	_ "embed"
+	"tenbounce/repository"
 
 	"encoding/json"
 	"fmt"
@@ -16,17 +17,18 @@ var hardcodedUsers_bytes []byte
 // TODO(bruce): XXX
 var hardcodedUsers []userWithSecretURL
 
-var APIServer = echo.New()
-var apiGroup = APIServer.Group("/api")
+type HandlerClx struct {
+	repository Repository
+}
 
-func apiRoutes(g *echo.Group) {
+func apiRoutes(g *echo.Group, h HandlerClx) {
 	userRoutes(g)
 	tempPostgresRoute(g)
 
 	// Routes require user to be set
 	g.Use(SetUserMiddleware)
-	pointRoutes(g)
-	pointTypeRoutes(g)
+	pointRoutes(g, h)
+	pointTypeRoutes(g, h)
 }
 
 func init() {
@@ -36,11 +38,22 @@ func init() {
 	if err != nil {
 		panic(fmt.Errorf("unmarshal hardcoded users %w", err))
 	}
+}
 
-	apiRoutes(apiGroup)
+func NewTenbounceAPI() *echo.Echo {
+	var APIServer = echo.New()
+	var apiGroup = APIServer.Group("/api")
+
+	var handlerClx = HandlerClx{
+		repository: repository.NewMemoryRepository(),
+	}
+
+	apiRoutes(apiGroup, handlerClx)
 
 	// TODO(bruce): UI routes
 	APIServer.GET("", func(c echo.Context) error {
 		return c.HTML(http.StatusOK, homepageHTML)
 	})
+
+	return APIServer
 }
