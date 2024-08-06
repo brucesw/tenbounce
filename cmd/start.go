@@ -26,7 +26,7 @@ to quickly create a Cobra application.`,
 
 		switch viper.GetString("repository") {
 		case "memory":
-			repo = repository.NewInMemoryRepository()
+			repo = repository.NewMemoryRepository()
 		case "postgres":
 			var dataSourceName = viper.GetString("postgres.data_source_name")
 			repo = repository.NewPostgresRepository(dataSourceName)
