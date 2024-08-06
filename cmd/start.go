@@ -1,7 +1,10 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"tenbounce/api"
 	"tenbounce/repository"
@@ -20,13 +23,16 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var repo api.Repository
-		// TODO(bruce): read repository type from config
-		if true {
+
+		switch viper.GetString("repository") {
+		case "memory":
 			repo = repository.NewInMemoryRepository()
-		} else {
-			// TODO(bruce): read string from config
-			var psqlInfo = "host=127.0.0.1 port=5455 user=postgresUser password=postgresPW dbname=postgresDB sslmode=disable"
-			repo = repository.NewPostgresRepository(psqlInfo)
+		case "postgres":
+			var dataSourceName = viper.GetString("postgres.data_source_name")
+			repo = repository.NewPostgresRepository(dataSourceName)
+			fmt.Println(dataSourceName)
+		default:
+			panic("invalid repository")
 		}
 
 		var apiServer = api.NewTenbounceAPI(repo)
