@@ -15,15 +15,10 @@ func userRoutes(g *echo.Group, h HandlerClx) {
 
 func (h HandlerClx) getUser(c echo.Context) error {
 	var ctx = c.Request().Context()
-	// TODO(bruce): helper function to get user id off context
-	var userID = ctx.Value(ctxKey_UserID("userID"))
-	var userIDString string
-	var ok bool
-	if userIDString, ok = userID.(string); !ok {
-		return c.JSON(http.StatusInternalServerError, "user id not string type")
-	}
 
-	if user, err := h.repository.GetUser(userIDString); err != nil {
+	if userID, err := contextUserID(ctx); err != nil {
+		return c.JSON(http.StatusInternalServerError, fmt.Errorf("context user id: %w", err))
+	} else if user, err := h.repository.GetUser(userID); err != nil {
 		return c.JSON(http.StatusInternalServerError, fmt.Errorf("get user: %w", err))
 	} else {
 		return c.JSON(http.StatusOK, user)
