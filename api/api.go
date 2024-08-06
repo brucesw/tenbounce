@@ -2,7 +2,6 @@ package api
 
 import (
 	_ "embed"
-	"tenbounce/repository"
 
 	"encoding/json"
 	"fmt"
@@ -40,12 +39,12 @@ func init() {
 	}
 }
 
-func NewTenbounceAPI() *echo.Echo {
+func NewTenbounceAPI(repository Repository) *echo.Echo {
 	var APIServer = echo.New()
 	var apiGroup = APIServer.Group("/api")
 
 	var handlerClx = HandlerClx{
-		repository: repository.NewMemoryRepository(),
+		repository: repository,
 	}
 
 	apiRoutes(apiGroup, handlerClx)

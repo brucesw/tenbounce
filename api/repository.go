@@ -3,10 +3,18 @@ package api
 import "tenbounce/model"
 
 type Repository interface {
-	GetUser(userID string) (model.User, error)
-	ListPoints(userID string) ([]model.Point, error)
-	SavePoint(p *model.Point) error
-	ListPointTypes() ([]model.PointType, error)
+	UserRepository
+	PointRepository
+	PointTypeRepository
 }
 
-// TODO(bruce): Interface embedding
+type UserRepository interface {
+	GetUser(userID string) (model.User, error)
+}
+type PointRepository interface {
+	ListPoints(userID string) ([]model.Point, error)
+	SavePoint(p *model.Point) error
+}
+type PointTypeRepository interface {
+	ListPointTypes() ([]model.PointType, error)
+}

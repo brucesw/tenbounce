@@ -1,9 +1,13 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"tenbounce/api"
+	"tenbounce/repository"
 )
 
 // TODO(bruce): Update description
@@ -18,7 +22,20 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var apiServer = api.NewTenbounceAPI()
+		var repo api.Repository
+
+		switch viper.GetString("repository") {
+		case "memory":
+			repo = repository.NewMemoryRepository()
+		case "postgres":
+			var dataSourceName = viper.GetString("postgres.data_source_name")
+			repo = repository.NewPostgresRepository(dataSourceName)
+			fmt.Println(dataSourceName)
+		default:
+			panic("invalid repository")
+		}
+
+		var apiServer = api.NewTenbounceAPI(repo)
 		apiServer.Logger.Fatal(apiServer.Start(":1323"))
 	},
 }
