@@ -52,7 +52,7 @@ func NewCreatePointResponse(p model.Point) (CreatePointResponse, error) {
 func (cpb CreatePointBody) Point(user model.User) (model.Point, error) {
 	var point = model.Point{
 		// ID set downstream
-		Timestamp:   time.Now(), // TODO(bruce): introduce and use nower
+		Timestamp:   time.Now(), // TODO(bruce): use nower
 		UserID:      user.ID,
 		PointTypeID: cpb.PointTypeID,
 		Value:       cpb.Value,

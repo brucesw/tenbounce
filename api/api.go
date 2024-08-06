@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"tenbounce/util"
 
 	"github.com/labstack/echo/v4"
 )
@@ -9,6 +10,7 @@ import (
 type HandlerClx struct {
 	repository    Repository
 	signingSecret string
+	nower         util.Nower
 }
 
 func apiRoutes(g *echo.Group, h HandlerClx) {
@@ -35,6 +37,7 @@ func NewTenbounceAPI(
 	var handlerClx = HandlerClx{
 		repository:    repository,
 		signingSecret: signingSecret,
+		nower:         util.NewTimeNower(),
 	}
 
 	apiRoutes(apiGroup, handlerClx)
