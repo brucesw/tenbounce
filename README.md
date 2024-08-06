@@ -14,6 +14,7 @@
 - non-API tests
 - API tests
 - UI file structure -- static directory and handlers; see http.FileServer
+- ZAP
 
 ## P-lan
 - [X] pros and cons discussion of previous interfaces

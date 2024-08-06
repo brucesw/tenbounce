@@ -169,15 +169,32 @@
         return color;
       }
 
+      function fetchUserData() {
+        fetch("/api/users")
+          .then((response) => response.json())
+          .then((data) => {
+            const userInfo = document.getElementById("userInfo");
+            userInfo.textContent = `Logged in as ${data.name}`;
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+
       window.onload = () => {
         populateDropdown();
         fetchPointsData();
+        fetchUserData();
       };
     </script>
   </head>
 
   <body>
     <div class="container my-5">
+      <div class="d-flex justify-content-end mb-4">
+        <span id="userInfo" style="color: black; font-size: small;"></span>
+      </div>
+
       <h1 class="mb-4 text-center">Enter a Decimal Number</h1>
 
       <form onsubmit="event.preventDefault(); sendPostRequest();" class="mb-4">

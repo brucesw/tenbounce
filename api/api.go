@@ -26,6 +26,7 @@ func apiRoutes(g *echo.Group, h HandlerClx) {
 
 	// Routes require user to be set
 	g.Use(SetUserMiddleware)
+	userRoutes(g, h)
 	pointRoutes(g, h)
 	pointTypeRoutes(g, h)
 }
