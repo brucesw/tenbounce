@@ -18,7 +18,9 @@ func SetUserMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		fmt.Println(c.Path())
 
 		if userIDCookie, err := c.Cookie(UserIDCookieName); err != nil {
-			c.JSON(http.StatusUnauthorized, "get user id cookie")
+			// TODO(bruce): returns error
+			// TODO(bruce): redirect to login page
+			return c.JSON(http.StatusUnauthorized, "get user id cookie")
 		} else if true == false {
 			// TODO(bruce): implement cookie hashing with secret validation
 		} else {
