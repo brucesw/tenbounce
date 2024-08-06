@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"tenbounce/model"
 
@@ -10,6 +11,7 @@ import (
 
 type Postgres struct {
 	dataSourceName string
+	db             *sql.DB
 }
 
 func NewPostgresRepository(dataSourceName string) *Postgres {
@@ -18,15 +20,47 @@ func NewPostgresRepository(dataSourceName string) *Postgres {
 	}
 }
 
+// lazyPostgresDB returns the *sql.DB if it already exists,
+// otherwise instantiates one, attaches it to the Postgres Repository
+// then returns it.
+func (r *Postgres) lazyPostgresDB() (*sql.DB, error) {
+	if r.db != nil {
+		return r.db, nil
+	}
+
+	if db, err := sql.Open("postgres", r.dataSourceName); err != nil {
+		return nil, fmt.Errorf("sql open postgres: %w", err)
+	} else {
+		r.db = db
+	}
+
+	return r.db, nil
+}
+
 func (r *Postgres) GetUser(userID string) (model.User, error) {
-	return model.User{}, fmt.Errorf("user '%s' not found", userID)
+	db, err := r.lazyPostgresDB()
+	if err != nil {
+		return model.User{}, fmt.Errorf("lazy postgres db: %w", err)
+	}
+
+	var user = model.User{}
+
+	var row = db.QueryRow("SELECT * FROM users WHERE id = $1", userID)
+	if err := row.Scan(&user.ID, &user.Name, &user.Email); err != nil {
+		if err == sql.ErrNoRows {
+			return model.User{}, errors.New("no user found")
+		}
+
+		return model.User{}, fmt.Errorf("scan row: %w", err)
+	}
+
+	return user, nil
 }
 
 func (r *Postgres) ListPoints(userID string) ([]model.Point, error) {
-	// TODO(bruce): move to struct and reuse?
-	db, err := sql.Open("postgres", r.dataSourceName)
+	db, err := r.lazyPostgresDB()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("lazy postgres db: %w", err)
 	}
 
 	var points = []model.Point{}

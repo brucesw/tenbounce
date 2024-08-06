@@ -27,7 +27,7 @@ postgres:16-alpine
 
 /*
 CREATE TABLE points (
-	id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+	id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 	timestamp timestamp,
 	user_id uuid,
 	point_type_id uuid,
@@ -49,6 +49,20 @@ INSERT INTO points (timestamp, user_id, point_type_id, value) VALUES
 (CURRENT_TIMESTAMP, '123e4567-e89b-12d3-a456-426614174000', '4e4b2b1c-5063-425a-a409-71b431068f78', 15.02);
 */
 
+/*
+CREATE TABLE users (
+	id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+	name text,
+	email text
+);
+*/
+
+/*
+INSERT INTO users (id, name, email) VALUES
+('550e8400-e29b-41d4-a716-446655440000', 'Bruce Szudera Wienand', 'bszuderaw@gmail.com'),
+('123e4567-e89b-12d3-a456-426614174000', 'Derek Therrien', 'dtherrien2503@gmail.com'),
+('987fbc97-4bed-5078-889f-8c6e44d66b00', 'Lourens Willekes', 'lourw95@gmail.com');
+*/
 func tempPostgresRoute(g *echo.Group) {
 	g.POST("/postgres", func(c echo.Context) error {
 
