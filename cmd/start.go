@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"tenbounce/api"
+	"tenbounce/repository"
 )
 
 // TODO(bruce): Update description
@@ -18,7 +19,17 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var apiServer = api.NewTenbounceAPI()
+		var repo api.Repository
+		// TODO(bruce): read repository type from config
+		if true {
+			repo = repository.NewInMemoryRepository()
+		} else {
+			// TODO(bruce): read string from config
+			var psqlInfo = "host=127.0.0.1 port=5455 user=postgresUser password=postgresPW dbname=postgresDB sslmode=disable"
+			repo = repository.NewPostgresRepository(psqlInfo)
+		}
+
+		var apiServer = api.NewTenbounceAPI(repo)
 		apiServer.Logger.Fatal(apiServer.Start(":1323"))
 	},
 }
