@@ -23,6 +23,7 @@ func (r *Postgres) GetUser(userID string) (model.User, error) {
 }
 
 func (r *Postgres) ListPoints(userID string) ([]model.Point, error) {
+	// TODO(bruce): move to struct and reuse?
 	db, err := sql.Open("postgres", r.dataSourceName)
 	if err != nil {
 		return nil, err
