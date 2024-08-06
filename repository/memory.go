@@ -21,13 +21,13 @@ var hardcodedUsers []model.User
 var BSWUserID string = "550e8400-e29b-41d4-a716-446655440000"
 var DTherrUserID string = "123e4567-e89b-12d3-a456-426614174000"
 
-type InMemory struct {
+type Memory struct {
 	points     []model.Point
 	users      []model.User
 	pointTypes []model.PointType
 }
 
-func NewInMemoryRepository() *InMemory {
+func NewMemoryRepository() *Memory {
 	// TODO(bruce): embed initial points and other things
 	var points = []model.Point{
 		{
@@ -100,14 +100,14 @@ func NewInMemoryRepository() *InMemory {
 		},
 	}
 
-	return &InMemory{
+	return &Memory{
 		points:     points,
 		users:      hardcodedUsers,
 		pointTypes: pointTypes,
 	}
 }
 
-func (r *InMemory) GetUser(userID string) (model.User, error) {
+func (r *Memory) GetUser(userID string) (model.User, error) {
 	for _, user := range r.users {
 		if user.ID == userID {
 			return user, nil
@@ -117,7 +117,7 @@ func (r *InMemory) GetUser(userID string) (model.User, error) {
 	return model.User{}, fmt.Errorf("user '%s' not found", userID)
 }
 
-func (r *InMemory) ListPoints(userID string) ([]model.Point, error) {
+func (r *Memory) ListPoints(userID string) ([]model.Point, error) {
 	var points = []model.Point{}
 
 	for _, point := range r.points {
@@ -129,7 +129,7 @@ func (r *InMemory) ListPoints(userID string) ([]model.Point, error) {
 	return points, nil
 }
 
-func (r *InMemory) SavePoint(p *model.Point) error {
+func (r *Memory) SavePoint(p *model.Point) error {
 	p.ID = uuid.NewString()
 	fmt.Printf("saved to db: %+v", p)
 
@@ -138,7 +138,7 @@ func (r *InMemory) SavePoint(p *model.Point) error {
 	return nil
 }
 
-func (r *InMemory) ListPointTypes() ([]model.PointType, error) {
+func (r *Memory) ListPointTypes() ([]model.PointType, error) {
 	return r.pointTypes, nil
 }
 

@@ -40,13 +40,12 @@ func init() {
 	}
 }
 
-
 func NewTenbounceAPI() *echo.Echo {
 	var APIServer = echo.New()
 	var apiGroup = APIServer.Group("/api")
 
 	var handlerClx = HandlerClx{
-		repository: repository.NewInMemoryRepository(),
+		repository: repository.NewMemoryRepository(),
 	}
 
 	apiRoutes(apiGroup, handlerClx)
