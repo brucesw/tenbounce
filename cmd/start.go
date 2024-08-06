@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -30,7 +28,6 @@ to quickly create a Cobra application.`,
 		case "postgres":
 			var dataSourceName = viper.GetString("postgres.data_source_name")
 			repo = repository.NewPostgresRepository(dataSourceName)
-			fmt.Println(dataSourceName)
 		default:
 			panic("invalid repository")
 		}

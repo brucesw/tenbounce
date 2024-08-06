@@ -67,7 +67,6 @@ func (r *Postgres) ListPoints(userID string) ([]model.Point, error) {
 
 	rows, err := db.Query("SELECT * FROM points WHERE user_id = $1", userID)
 	if err != nil {
-		fmt.Println(fmt.Errorf("db query: %w", err))
 		return nil, fmt.Errorf("db query: %w", err)
 	}
 	defer rows.Close()
@@ -109,7 +108,6 @@ func (r *Postgres) ListPointTypes() ([]model.PointType, error) {
 
 	rows, err := db.Query("SELECT * FROM point_types")
 	if err != nil {
-		fmt.Println(fmt.Errorf("db query: %w", err))
 		return nil, fmt.Errorf("db query: %w", err)
 	}
 	defer rows.Close()
