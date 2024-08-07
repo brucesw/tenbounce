@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"tenbounce/model"
+	"tenbounce/util"
 	"time"
 
 	"github.com/google/uuid"
@@ -25,9 +26,11 @@ type Memory struct {
 	points     []model.Point
 	users      []model.User
 	pointTypes []model.PointType
+
+	nower util.Nower
 }
 
-func NewMemoryRepository() *Memory {
+func NewMemoryRepository(nower util.Nower) *Memory {
 	// TODO(bruce): embed initial points and other things
 	var points = []model.Point{
 		{
@@ -104,6 +107,7 @@ func NewMemoryRepository() *Memory {
 		points:     points,
 		users:      hardcodedUsers,
 		pointTypes: pointTypes,
+		nower:      nower,
 	}
 }
 
@@ -131,6 +135,7 @@ func (r *Memory) ListPoints(userID string) ([]model.Point, error) {
 
 func (r *Memory) CreatePoint(p *model.Point) error {
 	p.ID = uuid.NewString()
+	p.Timestamp = r.nower.Now()
 
 	r.points = append(r.points, *p)
 

@@ -1,31 +1,20 @@
 package api
 
 import (
-	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 )
 
-// TODO(bruce): fix
-type ctxKey_UserID string
-
-// TODO(bruce): implement
 // TODO(bruce): document
-func SetUserMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+func (h HandlerClx) SetUserMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		fmt.Println(c.Path())
-
-		if userIDCookie, err := c.Cookie(UserIDCookieName); err != nil {
-			// TODO(bruce): returns error
-			// TODO(bruce): redirect to login page
+		if userIDCookie, err := c.Cookie(userIDCookieName); err != nil {
 			return c.JSON(http.StatusUnauthorized, "get user id cookie")
-		} else if true == false {
-			// TODO(bruce): implement cookie hashing with secret validation
+		} else if userID, err := userID_FromCookieValue(userIDCookie.Value, h.signingSecret); err != nil {
+			return c.JSON(http.StatusUnauthorized, "user id from cookie value")
 		} else {
-			// TODO(bruce): don't hardcode
-			var newCtx = context.WithValue(c.Request().Context(), ctxKey_UserID("userID"), userIDCookie.Value)
+			var newCtx = contextWithUserID(c.Request().Context(), userID)
 			var newRequestContext = c.Request().WithContext(newCtx)
 			c.SetRequest(newRequestContext)
 

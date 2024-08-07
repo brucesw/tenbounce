@@ -1,13 +1,12 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
 	"tenbounce/api"
 	"tenbounce/repository"
+	"tenbounce/util"
 )
 
 // TODO(bruce): Update description
@@ -26,16 +25,21 @@ to quickly create a Cobra application.`,
 
 		switch viper.GetString("repository") {
 		case "memory":
-			repo = repository.NewMemoryRepository()
+			var nower = util.NewTimeNower()
+			repo = repository.NewMemoryRepository(nower)
 		case "postgres":
 			var dataSourceName = viper.GetString("postgres.data_source_name")
 			repo = repository.NewPostgresRepository(dataSourceName)
-			fmt.Println(dataSourceName)
 		default:
 			panic("invalid repository")
 		}
 
-		var apiServer = api.NewTenbounceAPI(repo)
+		var signingSecret = viper.GetString("signing_secret")
+		if signingSecret == "" {
+			panic("invalid signing secret")
+		}
+
+		var apiServer = api.NewTenbounceAPI(repo, signingSecret)
 		apiServer.Logger.Fatal(apiServer.Start(":1323"))
 	},
 }

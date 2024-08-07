@@ -1,58 +1,58 @@
 package api
 
 import (
-	_ "embed"
-
-	"encoding/json"
-	"fmt"
 	"net/http"
+	"tenbounce/util"
 
 	"github.com/labstack/echo/v4"
 )
 
-//go:embed user_secrets.json
-var hardcodedUsers_bytes []byte
-
-// TODO(bruce): XXX
-var hardcodedUsers []userWithSecretURL
-
 type HandlerClx struct {
-	repository Repository
+	repository    Repository
+	signingSecret string
+	nower         util.Nower
 }
 
 func apiRoutes(g *echo.Group, h HandlerClx) {
-	userRoutes(g)
+	// TODO(bruce): remove
 	tempPostgresRoute(g)
 
+	setUserRoutes(g, h)
+
 	// Routes require user to be set
-	g.Use(SetUserMiddleware)
+	g.Use(h.SetUserMiddleware)
+	userRoutes(g, h)
 	pointRoutes(g, h)
 	pointTypeRoutes(g, h)
+
 }
 
-func init() {
-	// TODO(bruce): XXX needs to run before routes are registered so users exist
-	// api.go init() runs before user.go init()
-	var err = json.Unmarshal(hardcodedUsers_bytes, &hardcodedUsers)
-	if err != nil {
-		panic(fmt.Errorf("unmarshal hardcoded users %w", err))
-	}
-}
-
-func NewTenbounceAPI(repository Repository) *echo.Echo {
-	var APIServer = echo.New()
-	var apiGroup = APIServer.Group("/api")
+func NewTenbounceAPI(
+	repository Repository,
+	signingSecret string,
+) *echo.Echo {
+	var apiServer = echo.New()
+	var apiGroup = apiServer.Group("/api")
 
 	var handlerClx = HandlerClx{
-		repository: repository,
+		repository:    repository,
+		signingSecret: signingSecret,
+		nower:         util.NewTimeNower(),
 	}
 
 	apiRoutes(apiGroup, handlerClx)
 
-	// TODO(bruce): UI routes
-	APIServer.GET("", func(c echo.Context) error {
+	apiServer.GET("", func(c echo.Context) error {
+		if userIDCookie, err := c.Cookie(userIDCookieName); err != nil {
+			return c.HTML(http.StatusUnauthorized, unauthorizedHTML)
+		} else if userID, err := userID_FromCookieValue(userIDCookie.Value, signingSecret); err != nil {
+			return c.HTML(http.StatusUnauthorized, unauthorizedHTML)
+		} else if _, err := repository.GetUser(userID); err != nil {
+			return c.HTML(http.StatusUnauthorized, unauthorizedHTML)
+		}
+
 		return c.HTML(http.StatusOK, homepageHTML)
 	})
 
-	return APIServer
+	return apiServer
 }

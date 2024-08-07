@@ -49,10 +49,11 @@ func NewCreatePointResponse(p model.Point) (CreatePointResponse, error) {
 	return cpr, nil
 }
 
+// TODO(bruce): rethink existence of this function
 func (cpb CreatePointBody) Point(user model.User) (model.Point, error) {
 	var point = model.Point{
 		// ID set downstream
-		Timestamp:   time.Now(), // TODO(bruce): introduce and use nower
+		// Timestamp set downstream
 		UserID:      user.ID,
 		PointTypeID: cpb.PointTypeID,
 		Value:       cpb.Value,
@@ -65,18 +66,13 @@ func (cpb CreatePointBody) Point(user model.User) (model.Point, error) {
 // TODO(bruce): responses
 func (h HandlerClx) createPoint(c echo.Context) error {
 	var ctx = c.Request().Context()
-	var userID = ctx.Value(ctxKey_UserID("userID"))
-	// TODO(bruce): replace cookie read with user id ctx read
-
-	fmt.Printf("userID: %s\n", userID)
-
 	var pointBody = &CreatePointBody{}
 
 	if err := c.Bind(pointBody); err != nil {
 		return c.JSON(http.StatusBadRequest, "invalid point body")
-	} else if userIDCookie, err := c.Cookie(UserIDCookieName); err != nil {
-		return c.JSON(http.StatusInternalServerError, "get user id cookie")
-	} else if user, err := h.repository.GetUser(userIDCookie.Value); err != nil {
+	} else if userID, err := contextUserID(ctx); err != nil {
+		return c.JSON(http.StatusInternalServerError, fmt.Errorf("context user id: %w", err))
+	} else if user, err := h.repository.GetUser(userID); err != nil {
 		return c.JSON(http.StatusInternalServerError, "get user")
 	} else if point, err := pointBody.Point(user); err != nil {
 		return c.JSON(http.StatusInternalServerError, "pointbody point")
@@ -146,14 +142,11 @@ func NewListPointsResponse(points []model.Point, pointTypes []model.PointType) (
 // TODO(bruce): document
 // TODO(bruce): responses
 func (h HandlerClx) listPoints(c echo.Context) error {
-	// TODO(bruce): replace cookie read with user id ctx read
 	var ctx = c.Request().Context()
-	var userID = ctx.Value(ctxKey_UserID("userID"))
 
-	fmt.Printf("userID: %s\n", userID)
-	if userIDCookie, err := c.Cookie(UserIDCookieName); err != nil {
-		return c.JSON(http.StatusInternalServerError, "get user id cookie")
-	} else if user, err := h.repository.GetUser(userIDCookie.Value); err != nil {
+	if userID, err := contextUserID(ctx); err != nil {
+		return c.JSON(http.StatusInternalServerError, fmt.Errorf("context user id: %w", err))
+	} else if user, err := h.repository.GetUser(userID); err != nil {
 		return c.JSON(http.StatusInternalServerError, "get user")
 	} else if points, err := h.repository.ListPoints(user.ID); err != nil {
 		return c.JSON(http.StatusInternalServerError, nil)
