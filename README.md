@@ -13,7 +13,7 @@
 - [ ] non-success API responses
 - [ ] non-API tests
 - [ ] API tests
-- [ ] UI file structure -- static directory and handlers; see http.FileServer
+- [ ] UI file structure -- static directory and handlers; see http.FileServer, also see [echo static files](https://echo.labstack.com/docs/static-files)
 - [ ] ZAP
 
 ## P-lan
