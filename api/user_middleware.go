@@ -10,8 +10,6 @@ import (
 func (h HandlerClx) SetUserMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		if userIDCookie, err := c.Cookie(userIDCookieName); err != nil {
-			// TODO(bruce): returns error
-			// TODO(bruce): redirect to login page
 			return c.JSON(http.StatusUnauthorized, "get user id cookie")
 		} else if userID, err := userID_FromCookieValue(userIDCookie.Value, h.signingSecret); err != nil {
 			return c.JSON(http.StatusUnauthorized, "user id from cookie value")
