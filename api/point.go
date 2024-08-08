@@ -37,28 +37,32 @@ type CreatePointResponse struct {
 	PointTypeID model.PointTypeID `json:"pointTypeID"`
 
 	Value model.PointValue `json:"value"`
+
+	CreatedByUserID string `json:"createdByUserID"`
 }
 
 func NewCreatePointResponse(p model.Point) (CreatePointResponse, error) {
 	var cpr = CreatePointResponse{
-		ID:          p.ID,
-		Timestamp:   p.Timestamp,
-		UserID:      p.UserID,
-		PointTypeID: p.PointTypeID,
-		Value:       p.Value,
+		ID:              p.ID,
+		Timestamp:       p.Timestamp,
+		UserID:          p.UserID,
+		PointTypeID:     p.PointTypeID,
+		Value:           p.Value,
+		CreatedByUserID: p.CreatedByUserID,
 	}
 
 	return cpr, nil
 }
 
 // TODO(bruce): rethink existence of this function
-func (cpb CreatePointBody) Point(user model.User, ts time.Time) (model.Point, error) {
+func (cpb CreatePointBody) Point(userID, creatorUserID string, ts time.Time) (model.Point, error) {
 	var point = model.Point{
 		// ID set downstream
-		Timestamp:   ts,
-		UserID:      user.ID,
-		PointTypeID: cpb.PointTypeID,
-		Value:       cpb.Value,
+		Timestamp:       ts,
+		UserID:          userID,
+		PointTypeID:     cpb.PointTypeID,
+		Value:           cpb.Value,
+		CreatedByUserID: creatorUserID,
 	}
 
 	return point, nil
@@ -72,13 +76,15 @@ func (h HandlerClx) createPoint(c echo.Context) error {
 
 	if err := c.Bind(createPointBody); err != nil {
 		return c.JSON(http.StatusBadRequest, "invalid point body")
-	} else if fmt.Printf("%+v", createPointBody); false {
-		panic("should not happen")
-	} else if userID, err := contextUserID(ctx); err != nil {
+	} else if creatorUserID, err := contextUserID(ctx); err != nil {
 		return c.JSON(http.StatusInternalServerError, fmt.Errorf("context user id: %w", err))
-	} else if user, err := h.repository.GetUser(userID); err != nil {
+		// TODO(bruce): confirm creator user haspermission to create points for user
+	} else if creatorUser, err := h.repository.GetUser(creatorUserID); err != nil {
+		return c.JSON(http.StatusInternalServerError, "get creator user")
+	} else if user, err := h.repository.GetUser(createPointBody.UserID); err != nil {
 		return c.JSON(http.StatusInternalServerError, "get user")
-	} else if point, err := createPointBody.Point(user, h.nower.Now()); err != nil {
+
+	} else if point, err := createPointBody.Point(user.ID, creatorUser.ID, h.nower.Now()); err != nil {
 		return c.JSON(http.StatusInternalServerError, "createPointBody point")
 	} else if pointTypes, err := h.repository.ListPointTypes(); err != nil {
 		return c.JSON(http.StatusInternalServerError, "get point types from db")
@@ -113,16 +119,24 @@ type pointWithDetails struct {
 	model.Point
 
 	PointTypeName model.PointTypeName `json:"pointTypeName"`
+
+	CreatedByUserName string `json:"createdByUserName"`
 }
+
 type ListPointsResponse []pointWithDetails
 
 // TODO(bruce): document
 // TODO(bruce): test
 // TODO(bruce): replace with join in db??
-func NewListPointsResponse(points []model.Point, pointTypes []model.PointType) (ListPointsResponse, error) {
+func NewListPointsResponse(points []model.Point, pointTypes []model.PointType, users []model.User) (ListPointsResponse, error) {
 	var pointTypeIDToName = map[model.PointTypeID]model.PointTypeName{}
 	for _, pointType := range pointTypes {
 		pointTypeIDToName[pointType.ID] = pointType.Name
+	}
+
+	var userIDToName = map[string]string{}
+	for _, user := range users {
+		userIDToName[user.ID] = user.Name
 	}
 
 	var response = []pointWithDetails{}
@@ -130,10 +144,13 @@ func NewListPointsResponse(points []model.Point, pointTypes []model.PointType) (
 	for _, point := range points {
 		if pointTypeName, ok := pointTypeIDToName[model.PointTypeID(point.PointTypeID)]; !ok {
 			return nil, fmt.Errorf("invalid point type id %s on point %s", point.PointTypeID, point.ID)
+		} else if userName, ok := userIDToName[point.CreatedByUserID]; !ok {
+			return nil, fmt.Errorf("user id %s on point %s", point.CreatedByUserID, point.ID)
 		} else {
 			var pointWithDeets = pointWithDetails{
-				Point:         point,
-				PointTypeName: pointTypeName,
+				Point:             point,
+				PointTypeName:     pointTypeName,
+				CreatedByUserName: userName,
 			}
 
 			response = append(response, pointWithDeets)
@@ -153,11 +170,13 @@ func (h HandlerClx) listPoints(c echo.Context) error {
 	} else if user, err := h.repository.GetUser(userID); err != nil {
 		return c.JSON(http.StatusInternalServerError, "get user")
 	} else if points, err := h.repository.ListPoints(user.ID); err != nil {
-		return c.JSON(http.StatusInternalServerError, nil)
+		return c.JSON(http.StatusInternalServerError, fmt.Errorf("list points: %w", err))
 	} else if pointTypes, err := h.repository.ListPointTypes(); err != nil {
-		return c.JSON(http.StatusInternalServerError, nil)
-	} else if response, err := NewListPointsResponse(points, pointTypes); err != nil {
-		return c.JSON(http.StatusInternalServerError, err)
+		return c.JSON(http.StatusInternalServerError, fmt.Errorf("list point types: %w", err))
+	} else if users, err := h.repository.ListUsers(); err != nil {
+		return c.JSON(http.StatusInternalServerError, fmt.Errorf("list users: %w", err))
+	} else if response, err := NewListPointsResponse(points, pointTypes, users); err != nil {
+		return c.JSON(http.StatusInternalServerError, fmt.Errorf("new list points reponse: %w", err))
 	} else {
 		return c.JSON(http.StatusOK, response)
 	}

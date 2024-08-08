@@ -94,20 +94,19 @@ func (r *Postgres) ListPoints(userID string) ([]model.Point, error) {
 
 	rows, err := db.Query("SELECT * FROM points WHERE user_id = $1", userID)
 	if err != nil {
-		return nil, fmt.Errorf("db query: %w", err)
+		return nil, fmt.Errorf("db query: %w", fmt.Errorf("db query: %w", err))
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var point model.Point
 
-		if err := rows.Scan(&point.ID, &point.Timestamp, &point.UserID, &point.PointTypeID, &point.Value); err != nil {
+		if err := rows.Scan(&point.ID, &point.Timestamp, &point.UserID, &point.PointTypeID, &point.Value, &point.CreatedByUserID); err != nil {
 			return nil, fmt.Errorf("scan row: %w", err)
 		}
 
 		points = append(points, point)
 	}
-
 	return points, nil
 }
 
@@ -117,7 +116,7 @@ func (r *Postgres) CreatePoint(p *model.Point) error {
 		return fmt.Errorf("lazy postgres db: %w", err)
 	}
 
-	_, err = db.Exec("INSERT INTO points (timestamp, user_id, point_type_id, value) VALUES ($1, $2, $3, $4)", p.Timestamp, p.UserID, p.PointTypeID, p.Value)
+	_, err = db.Exec("INSERT INTO points (timestamp, user_id, point_type_id, value, created_by) VALUES ($1, $2, $3, $4, $5)", p.Timestamp, p.UserID, p.PointTypeID, p.Value, p.CreatedByUserID)
 	if err != nil {
 		return fmt.Errorf("exec db: %w", err)
 	}

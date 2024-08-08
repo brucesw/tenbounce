@@ -116,12 +116,10 @@
 
         const header = `
                 <tr>
-                    <th>ID</th>
                     <th>Timestamp</th>
-                    <th>User ID</th>
-                    <th>Point Type ID</th>
                     <th>Value</th>
                     <th>Point Type Name</th>
+                    <th>Created By User Name</th> <!-- New column for Created By User Name -->
                 </tr>
             `;
         table.insertAdjacentHTML("beforeend", header);
@@ -129,12 +127,10 @@
         data.forEach((point) => {
           const row = `
                     <tr>
-                        <td>${point.id}</td>
                         <td>${new Date(point.timestamp).toLocaleString()}</td>
-                        <td>${point.userID}</td>
-                        <td>${point.pointTypeID}</td>
                         <td>${point.value}</td>
                         <td>${point.pointTypeName}</td>
+                        <td>${point.createdByUserName}</td> <!-- Display Created By User Name -->
                     </tr>
                 `;
           table.insertAdjacentHTML("beforeend", row);
