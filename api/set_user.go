@@ -28,10 +28,8 @@ type userWithSecretURL struct {
 
 // register one "secret" endpoint for each hardcoded user
 // endpoint sets a signed cookie indicating user is logged in
-func setUserRoutes(g *echo.Group, h HandlerClx) {
-	var userRoutes = g.Group("/users")
-
-	var setUserRoutes = userRoutes.Group("/set_user")
+func setUserRoutes(e *echo.Echo, h HandlerClx) {
+	var setUserRoutes = e.Group("/set_user")
 
 	for _, hardcodedUser := range hardcodedUsers {
 		setUserRoutes.GET("/"+hardcodedUser.SecretURL, func(c echo.Context) error {
