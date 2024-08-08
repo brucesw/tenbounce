@@ -23,7 +23,10 @@
       function sendPostRequest() {
         const decimalValue = document.getElementById("decimalInput").value;
         const pointTypeID = document.getElementById("pointTypeDropdown").value;
+        const userID = document.getElementById("userDropdown").value; // Get selected user ID
+
         const data = {
+          userID: userID, // Add user ID to the data
           pointTypeID: pointTypeID,
           value: Number(decimalValue),
         };
@@ -64,6 +67,25 @@
           });
       }
 
+      function populateUserDropdown() {
+        fetch("/api/users")
+          .then((response) => response.json())
+          .then((data) => {
+            const userDropdown = document.getElementById("userDropdown");
+            userDropdown.innerHTML = ""; // Clear existing options
+
+            data.forEach((user) => {
+              const option = document.createElement("option");
+              option.value = user.id;
+              option.textContent = user.name;
+              userDropdown.appendChild(option);
+            });
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+
       function fetchPointsData() {
         fetch("/api/points")
           .then((response) => response.json())
@@ -76,18 +98,28 @@
           });
       }
 
+      function fetchUserData() {
+        fetch("/api/users/me")
+          .then((response) => response.json())
+          .then((data) => {
+            const userInfo = document.getElementById("userInfo");
+            userInfo.textContent = `Logged in as ${data.name}`;
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+
       function populateTable(data) {
         const table = document.getElementById("pointsTable");
         table.innerHTML = ""; // Clear existing table data
 
         const header = `
                 <tr>
-                    <th>ID</th>
                     <th>Timestamp</th>
-                    <th>User ID</th>
-                    <th>Point Type ID</th>
                     <th>Value</th>
                     <th>Point Type Name</th>
+                    <th>Created By User Name</th> <!-- New column for Created By User Name -->
                 </tr>
             `;
         table.insertAdjacentHTML("beforeend", header);
@@ -95,12 +127,10 @@
         data.forEach((point) => {
           const row = `
                     <tr>
-                        <td>${point.id}</td>
                         <td>${new Date(point.timestamp).toLocaleString()}</td>
-                        <td>${point.userID}</td>
-                        <td>${point.pointTypeID}</td>
                         <td>${point.value}</td>
                         <td>${point.pointTypeName}</td>
+                        <td>${point.createdByUserName}</td> <!-- Display Created By User Name -->
                     </tr>
                 `;
           table.insertAdjacentHTML("beforeend", row);
@@ -169,22 +199,11 @@
         return color;
       }
 
-      function fetchUserData() {
-        fetch("/api/users")
-          .then((response) => response.json())
-          .then((data) => {
-            const userInfo = document.getElementById("userInfo");
-            userInfo.textContent = `Logged in as ${data.name}`;
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-          });
-      }
-
       window.onload = () => {
+        fetchUserData(); // Fetch logged-in user info
+        populateUserDropdown(); // Populate user dropdown on page load
         populateDropdown();
         fetchPointsData();
-        fetchUserData();
       };
     </script>
   </head>
@@ -196,6 +215,19 @@
       </div>
 
       <h1 class="mb-4 text-center">Enter a Decimal Number</h1>
+
+      <!-- New User Dropdown -->
+      <div class="mb-3">
+        <label for="userDropdown" class="form-label">Select User:</label>
+        <select
+          id="userDropdown"
+          name="userDropdown"
+          class="form-select"
+          required
+        >
+          <!-- Options will be populated here -->
+        </select>
+      </div>
 
       <form onsubmit="event.preventDefault(); sendPostRequest();" class="mb-4">
         <div class="mb-3">

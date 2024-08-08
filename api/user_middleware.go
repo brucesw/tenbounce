@@ -7,7 +7,7 @@ import (
 )
 
 // TODO(bruce): document
-func (h HandlerClx) SetUserMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+func (h HandlerClx) RequireUserMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		if userIDCookie, err := c.Cookie(userIDCookieName); err != nil {
 			return c.JSON(http.StatusUnauthorized, "get user id cookie")

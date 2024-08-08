@@ -15,5 +15,5 @@ type Point struct {
 
 	Value PointValue `json:"value"`
 
-	// TODO(bruce): need CreatedBy?
+	CreatedByUserID string `json:"createdByUserID"`
 }

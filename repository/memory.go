@@ -34,53 +34,60 @@ func NewMemoryRepository(nower util.Nower) *Memory {
 	// TODO(bruce): embed initial points and other things
 	var points = []model.Point{
 		{
-			ID:          uuid.NewString(),
-			Timestamp:   time.Date(2024, time.July, 20, 10, 20, 0, 0, time.UTC),
-			UserID:      BSWUserID,
-			PointTypeID: "4e4b2b1c-5063-425a-a409-71b431068f78",
-			Value:       20.21,
+			ID:              uuid.NewString(),
+			Timestamp:       time.Date(2024, time.July, 20, 10, 20, 0, 0, time.UTC),
+			UserID:          BSWUserID,
+			PointTypeID:     "4e4b2b1c-5063-425a-a409-71b431068f78",
+			Value:           20.21,
+			CreatedByUserID: BSWUserID,
 		},
 		{
-			ID:          uuid.NewString(),
-			Timestamp:   time.Date(2024, time.July, 21, 10, 30, 0, 0, time.UTC),
-			UserID:      BSWUserID,
-			PointTypeID: "4e4b2b1c-5063-425a-a409-71b431068f78",
-			Value:       21,
+			ID:              uuid.NewString(),
+			Timestamp:       time.Date(2024, time.July, 21, 10, 30, 0, 0, time.UTC),
+			UserID:          BSWUserID,
+			PointTypeID:     "4e4b2b1c-5063-425a-a409-71b431068f78",
+			Value:           21,
+			CreatedByUserID: BSWUserID,
 		},
 		{
-			ID:          uuid.NewString(),
-			Timestamp:   time.Date(2024, time.July, 22, 10, 40, 0, 0, time.UTC),
-			UserID:      BSWUserID,
-			PointTypeID: "0d1b30ef-00d4-41d6-8581-b8d554752816",
-			Value:       19.00,
+			ID:              uuid.NewString(),
+			Timestamp:       time.Date(2024, time.July, 22, 10, 40, 0, 0, time.UTC),
+			UserID:          BSWUserID,
+			PointTypeID:     "0d1b30ef-00d4-41d6-8581-b8d554752816",
+			Value:           19.00,
+			CreatedByUserID: BSWUserID,
 		},
 		{
-			ID:          uuid.NewString(),
-			Timestamp:   time.Date(2024, time.July, 23, 10, 40, 0, 0, time.UTC),
-			UserID:      BSWUserID,
-			PointTypeID: "0d1b30ef-00d4-41d6-8581-b8d554752816",
-			Value:       18,
+			ID:              uuid.NewString(),
+			Timestamp:       time.Date(2024, time.July, 23, 10, 40, 0, 0, time.UTC),
+			UserID:          BSWUserID,
+			PointTypeID:     "0d1b30ef-00d4-41d6-8581-b8d554752816",
+			Value:           18,
+			CreatedByUserID: BSWUserID,
 		},
 		{
-			ID:          uuid.NewString(),
-			Timestamp:   time.Date(2024, time.August, 1, 10, 20, 0, 0, time.UTC),
-			UserID:      DTherrUserID,
-			PointTypeID: "4e4b2b1c-5063-425a-a409-71b431068f78",
-			Value:       20.21,
+			ID:              uuid.NewString(),
+			Timestamp:       time.Date(2024, time.August, 1, 10, 20, 0, 0, time.UTC),
+			UserID:          DTherrUserID,
+			PointTypeID:     "4e4b2b1c-5063-425a-a409-71b431068f78",
+			Value:           20.21,
+			CreatedByUserID: BSWUserID,
 		},
 		{
-			ID:          uuid.NewString(),
-			Timestamp:   time.Date(2024, time.August, 2, 10, 30, 0, 0, time.UTC),
-			UserID:      DTherrUserID,
-			PointTypeID: "4e4b2b1c-5063-425a-a409-71b431068f78",
-			Value:       21,
+			ID:              uuid.NewString(),
+			Timestamp:       time.Date(2024, time.August, 2, 10, 30, 0, 0, time.UTC),
+			UserID:          DTherrUserID,
+			PointTypeID:     "4e4b2b1c-5063-425a-a409-71b431068f78",
+			Value:           21,
+			CreatedByUserID: BSWUserID,
 		},
 		{
-			ID:          uuid.NewString(),
-			Timestamp:   time.Date(2024, time.August, 3, 10, 40, 0, 0, time.UTC),
-			UserID:      DTherrUserID,
-			PointTypeID: "0d1b30ef-00d4-41d6-8581-b8d554752816",
-			Value:       19.00,
+			ID:              uuid.NewString(),
+			Timestamp:       time.Date(2024, time.August, 3, 10, 40, 0, 0, time.UTC),
+			UserID:          DTherrUserID,
+			PointTypeID:     "0d1b30ef-00d4-41d6-8581-b8d554752816",
+			Value:           19.00,
+			CreatedByUserID: BSWUserID,
 		},
 	}
 
@@ -121,6 +128,10 @@ func (r *Memory) GetUser(userID string) (model.User, error) {
 	return model.User{}, fmt.Errorf("user '%s' not found", userID)
 }
 
+func (r *Memory) ListUsers() ([]model.User, error) {
+	return r.users, nil
+}
+
 func (r *Memory) ListPoints(userID string) ([]model.Point, error) {
 	var points = []model.Point{}
 
@@ -135,7 +146,6 @@ func (r *Memory) ListPoints(userID string) ([]model.Point, error) {
 
 func (r *Memory) CreatePoint(p *model.Point) error {
 	p.ID = uuid.NewString()
-	p.Timestamp = r.nower.Now()
 
 	r.points = append(r.points, *p)
 

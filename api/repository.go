@@ -10,6 +10,7 @@ type Repository interface {
 
 type UserRepository interface {
 	GetUser(userID string) (model.User, error)
+	ListUsers() ([]model.User, error)
 }
 type PointRepository interface {
 	ListPoints(userID string) ([]model.Point, error)
