@@ -23,6 +23,8 @@ type CreatePointBody struct {
 	PointTypeID model.PointTypeID `json:"pointTypeID"`
 
 	Value model.PointValue `json:"value"`
+
+	UserID string `json:"userID"`
 }
 
 type CreatePointResponse struct {
@@ -66,16 +68,18 @@ func (cpb CreatePointBody) Point(user model.User, ts time.Time) (model.Point, er
 // TODO(bruce): responses
 func (h HandlerClx) createPoint(c echo.Context) error {
 	var ctx = c.Request().Context()
-	var pointBody = &CreatePointBody{}
+	var createPointBody = &CreatePointBody{}
 
-	if err := c.Bind(pointBody); err != nil {
+	if err := c.Bind(createPointBody); err != nil {
 		return c.JSON(http.StatusBadRequest, "invalid point body")
+	} else if fmt.Printf("%+v", createPointBody); false {
+		panic("should not happen")
 	} else if userID, err := contextUserID(ctx); err != nil {
 		return c.JSON(http.StatusInternalServerError, fmt.Errorf("context user id: %w", err))
 	} else if user, err := h.repository.GetUser(userID); err != nil {
 		return c.JSON(http.StatusInternalServerError, "get user")
-	} else if point, err := pointBody.Point(user, h.nower.Now()); err != nil {
-		return c.JSON(http.StatusInternalServerError, "pointbody point")
+	} else if point, err := createPointBody.Point(user, h.nower.Now()); err != nil {
+		return c.JSON(http.StatusInternalServerError, "createPointBody point")
 	} else if pointTypes, err := h.repository.ListPointTypes(); err != nil {
 		return c.JSON(http.StatusInternalServerError, "get point types from db")
 	} else if err = validPointTypeID(point, pointTypes); err != nil {
