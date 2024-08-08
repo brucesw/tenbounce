@@ -50,10 +50,10 @@ func NewCreatePointResponse(p model.Point) (CreatePointResponse, error) {
 }
 
 // TODO(bruce): rethink existence of this function
-func (cpb CreatePointBody) Point(user model.User) (model.Point, error) {
+func (cpb CreatePointBody) Point(user model.User, ts time.Time) (model.Point, error) {
 	var point = model.Point{
 		// ID set downstream
-		// Timestamp set downstream
+		Timestamp:   ts,
 		UserID:      user.ID,
 		PointTypeID: cpb.PointTypeID,
 		Value:       cpb.Value,
@@ -74,7 +74,7 @@ func (h HandlerClx) createPoint(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, fmt.Errorf("context user id: %w", err))
 	} else if user, err := h.repository.GetUser(userID); err != nil {
 		return c.JSON(http.StatusInternalServerError, "get user")
-	} else if point, err := pointBody.Point(user); err != nil {
+	} else if point, err := pointBody.Point(user, h.nower.Now()); err != nil {
 		return c.JSON(http.StatusInternalServerError, "pointbody point")
 	} else if pointTypes, err := h.repository.ListPointTypes(); err != nil {
 		return c.JSON(http.StatusInternalServerError, "get point types from db")

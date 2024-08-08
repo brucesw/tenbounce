@@ -90,7 +90,7 @@ func (r *Postgres) CreatePoint(p *model.Point) error {
 		return fmt.Errorf("lazy postgres db: %w", err)
 	}
 
-	_, err = db.Exec("INSERT INTO points (timestamp, user_id, point_type_id, value) VALUES (CURRENT_TIMESTAMP, $1, $2, $3)", p.UserID, p.PointTypeID, p.Value)
+	_, err = db.Exec("INSERT INTO points (timestamp, user_id, point_type_id, value) VALUES ($1, $2, $3, $4)", p.Timestamp, p.UserID, p.PointTypeID, p.Value)
 	if err != nil {
 		return fmt.Errorf("exec db: %w", err)
 	}

@@ -135,7 +135,6 @@ func (r *Memory) ListPoints(userID string) ([]model.Point, error) {
 
 func (r *Memory) CreatePoint(p *model.Point) error {
 	p.ID = uuid.NewString()
-	p.Timestamp = r.nower.Now()
 
 	r.points = append(r.points, *p)
 
