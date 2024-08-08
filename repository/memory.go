@@ -121,6 +121,10 @@ func (r *Memory) GetUser(userID string) (model.User, error) {
 	return model.User{}, fmt.Errorf("user '%s' not found", userID)
 }
 
+func (r *Memory) ListUsers() ([]model.User, error) {
+	return r.users, nil
+}
+
 func (r *Memory) ListPoints(userID string) ([]model.Point, error) {
 	var points = []model.Point{}
 

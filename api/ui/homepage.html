@@ -170,7 +170,7 @@
       }
 
       function fetchUserData() {
-        fetch("/api/users")
+        fetch("/api/users/me")
           .then((response) => response.json())
           .then((data) => {
             const userInfo = document.getElementById("userInfo");

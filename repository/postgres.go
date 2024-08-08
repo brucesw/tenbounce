@@ -57,6 +57,33 @@ func (r *Postgres) GetUser(userID string) (model.User, error) {
 	return user, nil
 }
 
+func (r *Postgres) ListUsers() ([]model.User, error) {
+	db, err := r.lazyPostgresDB()
+	if err != nil {
+		return []model.User{}, fmt.Errorf("lazy postgres db: %w", err)
+	}
+
+	var users = []model.User{}
+
+	rows, err := db.Query("SELECT * FROM users")
+	if err != nil {
+		return nil, fmt.Errorf("db query: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var user model.User
+
+		if err := rows.Scan(&user.ID, &user.Name, &user.Email); err != nil {
+			return nil, fmt.Errorf("scan row: %w", err)
+		}
+
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
 func (r *Postgres) ListPoints(userID string) ([]model.Point, error) {
 	db, err := r.lazyPostgresDB()
 	if err != nil {
