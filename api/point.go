@@ -55,11 +55,11 @@ func NewCreatePointResponse(p model.Point) (CreatePointResponse, error) {
 }
 
 // TODO(bruce): rethink existence of this function
-func (cpb CreatePointBody) Point(userID, creatorUserID string, ts time.Time) (model.Point, error) {
+func (cpb CreatePointBody) Point(creatorUserID string, ts time.Time) (model.Point, error) {
 	var point = model.Point{
 		// ID set downstream
 		Timestamp:       ts,
-		UserID:          userID,
+		UserID:          cpb.UserID,
 		PointTypeID:     cpb.PointTypeID,
 		Value:           cpb.Value,
 		CreatedByUserID: creatorUserID,
@@ -81,10 +81,10 @@ func (h HandlerClx) createPoint(c echo.Context) error {
 		// TODO(bruce): confirm creator user haspermission to create points for user
 	} else if creatorUser, err := h.repository.GetUser(creatorUserID); err != nil {
 		return c.JSON(http.StatusInternalServerError, "get creator user")
-	} else if user, err := h.repository.GetUser(createPointBody.UserID); err != nil {
+	} else if _, err := h.repository.GetUser(createPointBody.UserID); err != nil {
 		return c.JSON(http.StatusInternalServerError, "get user")
 
-	} else if point, err := createPointBody.Point(user.ID, creatorUser.ID, h.nower.Now()); err != nil {
+	} else if point, err := createPointBody.Point(creatorUser.ID, h.nower.Now()); err != nil {
 		return c.JSON(http.StatusInternalServerError, "createPointBody point")
 	} else if pointTypes, err := h.repository.ListPointTypes(); err != nil {
 		return c.JSON(http.StatusInternalServerError, "get point types from db")
