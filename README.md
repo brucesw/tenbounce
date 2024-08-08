@@ -10,7 +10,7 @@
 - [X] secrets
 - [ ] deploy to GCP
 - [X] auth concerns, now and future
-- [ ] non-success API responses
+- [ ] CRITICAL: non-success API responses
 - [ ] non-API tests
 - [ ] API tests
 - [ ] UI file structure -- static directory and handlers; see http.FileServer, also see [echo static files](https://echo.labstack.com/docs/static-files)

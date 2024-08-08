@@ -78,7 +78,7 @@ func (h HandlerClx) createPoint(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "invalid point body")
 	} else if creatorUserID, err := contextUserID(ctx); err != nil {
 		return c.JSON(http.StatusInternalServerError, fmt.Errorf("context user id: %w", err))
-		// TODO(bruce): confirm creator user haspermission to create points for user
+		// TODO(bruce): confirm creator user has permission to create points for user
 	} else if creatorUser, err := h.repository.GetUser(creatorUserID); err != nil {
 		return c.JSON(http.StatusInternalServerError, "get creator user")
 	} else if _, err := h.repository.GetUser(createPointBody.UserID); err != nil {
