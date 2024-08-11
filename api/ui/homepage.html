@@ -17,6 +17,39 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
+    <style>
+      /* Sidebar styles */
+      .sidebar {
+        position: fixed;
+        left: -300px;
+        top: 0;
+        width: 300px;
+        height: 100%;
+        background-color: #f8f9fa;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s;
+        padding: 15px;
+        z-index: 1050;
+      }
+
+      .sidebar.open {
+        left: 0;
+      }
+
+      .sidebar-toggle {
+        position: fixed;
+        left: 0;
+        top: 50px;
+        transform: translateY(-50%);
+        background-color: #007bff;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 0 5px 5px 0;
+        cursor: pointer;
+        z-index: 1100;
+      }
+    </style>
+
     <script>
       let pointsChart; // Global variable to hold the chart instance
 
@@ -130,7 +163,9 @@
                         <td>${new Date(point.timestamp).toLocaleString()}</td>
                         <td>${point.value}</td>
                         <td>${point.pointTypeName}</td>
-                        <td>${point.createdByUserName}</td> <!-- Display Created By User Name -->
+                        <td>${
+                          point.createdByUserName
+                        }</td> <!-- Display Created By User Name -->
                     </tr>
                 `;
           table.insertAdjacentHTML("beforeend", row);
@@ -197,6 +232,36 @@
           color += letters[Math.floor(Math.random() * 16)];
         }
         return color;
+      }
+
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        sidebar.classList.toggle("open");
+      }
+
+      function sendSidebarPostRequest() {
+        const pointTypeName =
+          document.getElementById("pointTypeNameInput").value;
+
+        const data = {
+          name: pointTypeName,
+        };
+
+        fetch("/api/point_types", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Point type added:", data);
+            populateDropdown(); // Refresh the point type dropdown
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
       }
 
       window.onload = () => {
@@ -268,6 +333,29 @@
           <!-- Table data will be populated here -->
         </table>
       </div>
+    </div>
+
+    <!-- Sidebar Toggle Button -->
+    <div class="sidebar-toggle" onclick="toggleSidebar()">☰</div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+      <h4>Add Point Type</h4>
+      <div class="mb-3">
+        <label for="pointTypeNameInput" class="form-label"
+          >Point Type Name:</label
+        >
+        <input
+          type="text"
+          id="pointTypeNameInput"
+          name="pointTypeNameInput"
+          class="form-control"
+          required
+        />
+      </div>
+      <button class="btn btn-primary" onclick="sendSidebarPostRequest()">
+        Add Point Type
+      </button>
     </div>
 
     <!-- Bootstrap JS and dependencies -->

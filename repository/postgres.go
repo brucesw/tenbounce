@@ -110,6 +110,7 @@ func (r *Postgres) ListPoints(userID string) ([]model.Point, error) {
 	return points, nil
 }
 
+// TODO(bruce): Update to return ID and modify
 func (r *Postgres) CreatePoint(p *model.Point) error {
 	db, err := r.lazyPostgresDB()
 	if err != nil {
@@ -149,4 +150,19 @@ func (r *Postgres) ListPointTypes() ([]model.PointType, error) {
 	}
 
 	return pointTypes, nil
+}
+
+// TODO(bruce): Update to return ID and modify
+func (r *Postgres) CreatePointType(p *model.PointType) error {
+	db, err := r.lazyPostgresDB()
+	if err != nil {
+		return fmt.Errorf("lazy postgres db: %w", err)
+	}
+
+	_, err = db.Exec("INSERT INTO point_types (name) VALUES ($1)", p.Name)
+	if err != nil {
+		return fmt.Errorf("exec db: %w", err)
+	}
+
+	return nil
 }
