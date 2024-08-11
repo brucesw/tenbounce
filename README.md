@@ -4,12 +4,12 @@
 
 - [ ] README
 - [ ] TODOs
-- [X] design and implement db interface
+- [x] design and implement db interface
 - [ ] API vs db models
-- [X] config
-- [X] secrets
+- [x] config
+- [x] secrets
 - [ ] deploy to GCP
-- [X] auth concerns, now and future
+- [x] auth concerns, now and future
 - [ ] CRITICAL: non-success API responses
 - [ ] non-API tests
 - [ ] API tests
@@ -17,19 +17,30 @@
 - [ ] ZAP
 
 ## P-lan
-- [X] pros and cons discussion of previous interfaces
-- [X] design db interface
-  - [X] two implementations: in memory & postgres
-  - [X] package layout
-  - [X] interface layout (composition)
-  - [ ] layers?
-    - [ ] powerful base level + queries, wrappers with conveniences
-- [X] where does the object attach?
-- [X] how to access object in methods?
-- [X] implement in-memory db
-- [ ] SQLite db
-- [X] stretch: jumpstart postgres
-  - [X] [database/sql](https://pkg.go.dev/database/sql) seems to be the goto
-  - [ ] [squirrel](https://github.com/Masterminds/squirrel) also exists
-  - [X] local postgres
-  - [X] API route with example db interaction
+
+### Prework
+
+- [ ] create GCP account w free trial + credit card
+- [ ] create project
+- [ ] share access
+- [ ] update config file (project?, db creds, other?, signing secret)
+- [ ] stretch: Postgres db set up
+- [ ] stretch: Postgres db tables created
+
+### Work
+
+- [ ] pick destination
+  - [ ] App Engine: https://cloud.google.com/sql/docs/postgres/connect-app-engine-standard#go
+  - [ ] Cloud Run: https://cloud.google.com/sql/docs/postgres/connect-run
+- [ ] deploy
+- [ ] stretch: Postgres db connected
+- [ ] stretch: Cloud SQL proxy?
+  - [ ]: https://cloud.google.com/sql/docs/postgres/sql-proxy
+  - [ ]: https://cloud.google.com/sql/docs/postgres/sql-proxy
+- [ ]: super stretch: GitHub Action
+- [ ]: super duper stretch: Secrets Manager
+
+### Postwork
+
+- [ ] revoke access
+- [ ] $$ PROFIT $$
