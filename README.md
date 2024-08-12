@@ -17,6 +17,12 @@
 - [ ] ZAP
 - [ ] open source
 
+## Features
+
+- [ ] gyms/teams/groups/classes
+- [ ] permissioning system
+- [ ] delete entities
+
 ## P-lan
 
 ### Prework
