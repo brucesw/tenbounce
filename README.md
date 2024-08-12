@@ -27,12 +27,13 @@
 
 ### Prework
 
-- [ ] create GCP account w free trial + credit card
-- [ ] create project
-- [ ] share access
-- [ ] update config file (project?, db creds, other?, signing secret)
-- [ ] stretch: Postgres db set up
-- [ ] stretch: Postgres db tables created
+- [x] create GCP account w free trial + credit card: `tenbounce.official@gmail.com`
+- [x] create project: `tenbounce-prod`
+- [x] share access
+- [x] update config file (project?, db creds, other?, signing secret)
+- [x] stretch: Postgres db set up
+  - [x] `tenbounce-db-prod` smallest possible db, ~private IP, auto ip range, default network~, also updated to have public IP creds in tenbounce.yaml
+- [x] stretch: Postgres db tables created
 
 ### Work
 
