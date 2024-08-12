@@ -91,7 +91,7 @@ func (h HandlerClx) createPoint(c echo.Context) error {
 	} else if err = validPointTypeID(point, pointTypes); err != nil {
 		return c.JSON(http.StatusInternalServerError, "valid point type id")
 	} else if err = h.repository.CreatePoint(&point); err != nil {
-		return c.JSON(http.StatusInternalServerError, "save point to db")
+		return c.JSON(http.StatusInternalServerError, fmt.Errorf("save point to db: %w", err))
 	} else if cpr, err := NewCreatePointResponse(point); err != nil {
 		return c.JSON(http.StatusInternalServerError, "new create point response")
 	} else {

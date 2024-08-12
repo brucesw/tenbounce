@@ -18,4 +18,5 @@ type PointRepository interface {
 }
 type PointTypeRepository interface {
 	ListPointTypes() ([]model.PointType, error)
+	CreatePointType(p *model.PointType) error
 }

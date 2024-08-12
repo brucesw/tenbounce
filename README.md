@@ -15,6 +15,13 @@
 - [ ] API tests
 - [ ] UI file structure -- static directory and handlers; see http.FileServer, also see [echo static files](https://echo.labstack.com/docs/static-files)
 - [ ] ZAP
+- [ ] open source
+
+## Features
+
+- [ ] gyms/teams/groups/classes
+- [ ] permissioning system
+- [ ] delete entities
 
 ## P-lan
 

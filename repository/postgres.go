@@ -116,9 +116,10 @@ func (r *Postgres) CreatePoint(p *model.Point) error {
 		return fmt.Errorf("lazy postgres db: %w", err)
 	}
 
-	_, err = db.Exec("INSERT INTO points (timestamp, user_id, point_type_id, value, created_by) VALUES ($1, $2, $3, $4, $5)", p.Timestamp, p.UserID, p.PointTypeID, p.Value, p.CreatedByUserID)
-	if err != nil {
-		return fmt.Errorf("exec db: %w", err)
+	var row = db.QueryRow("INSERT INTO points (timestamp, user_id, point_type_id, value, created_by) VALUES ($1, $2, $3, $4, $5) RETURNING id", p.Timestamp, p.UserID, p.PointTypeID, p.Value, p.CreatedByUserID)
+
+	if err = row.Scan(&p.ID); err != nil {
+		return fmt.Errorf("scan row for id: %w", err)
 	}
 
 	return nil
@@ -149,4 +150,19 @@ func (r *Postgres) ListPointTypes() ([]model.PointType, error) {
 	}
 
 	return pointTypes, nil
+}
+
+func (r *Postgres) CreatePointType(p *model.PointType) error {
+	db, err := r.lazyPostgresDB()
+	if err != nil {
+		return fmt.Errorf("lazy postgres db: %w", err)
+	}
+
+	var row = db.QueryRow("INSERT INTO point_types (name) VALUES ($1) RETURNING id", p.Name)
+
+	if err = row.Scan(&p.ID); err != nil {
+		return fmt.Errorf("scan row for id: %w", err)
+	}
+
+	return nil
 }

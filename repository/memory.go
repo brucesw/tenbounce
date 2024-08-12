@@ -156,6 +156,14 @@ func (r *Memory) ListPointTypes() ([]model.PointType, error) {
 	return r.pointTypes, nil
 }
 
+func (r *Memory) CreatePointType(p *model.PointType) error {
+	p.ID = model.PointTypeID(uuid.NewString())
+
+	r.pointTypes = append(r.pointTypes, *p)
+
+	return nil
+}
+
 func init() {
 	var err = json.Unmarshal(hardcodedUsers_bytes, &hardcodedUsers)
 	if err != nil {
