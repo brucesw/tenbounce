@@ -16,11 +16,11 @@
 - [ ] UI file structure -- static directory and handlers; see http.FileServer, also see [echo static files](https://echo.labstack.com/docs/static-files)
 - [ ] ZAP
 - [ ] open source
-- [ ] Secrets Manager
+- [x] Secrets Manager
 - [ ] Github Action
 - [ ] New Postgres user
 - [ ] New signing secret
-- [ ] mount config file in Cloud Run
+- [x] mount config file in Cloud Run
 - [ ] mount user_secrets.json in Cloud Run
 - [ ] deploy script
 - [ ] version endpoint
