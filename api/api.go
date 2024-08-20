@@ -28,6 +28,8 @@ func NewTenbounceAPI(
 
 	setUserRoutes(apiServer, handlerClx)
 
+	healthRoute(apiServer, handlerClx)
+
 	var apiGroup = apiServer.Group("/api")
 	apiRoutes(apiGroup, handlerClx)
 
