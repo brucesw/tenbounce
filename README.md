@@ -23,6 +23,7 @@
 - [ ] mount config file in Cloud Run
 - [ ] mount user_secrets.json in Cloud Run
 - [ ] deploy script
+- [ ] version endpoint
 
 ## Features
 
@@ -36,7 +37,7 @@
 
 ```sh
 docker build -t tenbounce-image .
-docker tag tenbounce-image us-central1-docker.pkg.dev/tenbounce-prod/tenbounce/tenbounce:release4
+docker tag tenbounce-image us-central1-docker.pkg.dev/tenbounce-prod/tenbounce/tenbounce:release5
 docker push us-central1-docker.pkg.dev/tenbounce-prod/tenbounce/tenbounce
 <create new revision>
 ```
