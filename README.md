@@ -37,11 +37,11 @@
 
 ### Work
 
-- [ ] pick destination
+- [x] pick destination
   - [ ] App Engine: https://cloud.google.com/sql/docs/postgres/connect-app-engine-standard#go
-  - [ ] Cloud Run: https://cloud.google.com/sql/docs/postgres/connect-run
-- [ ] deploy
-- [ ] stretch: Postgres db connected
+  - [x] Cloud Run: https://cloud.google.com/sql/docs/postgres/connect-run
+- [x] deploy
+- [x] stretch: Postgres db connected
 - [ ] stretch: Cloud SQL proxy?
   - [ ]: https://cloud.google.com/sql/docs/postgres/sql-proxy
   - [ ]: https://cloud.google.com/sql/docs/postgres/sql-proxy
@@ -50,5 +50,14 @@
 
 ### Postwork
 
-- [ ] revoke access
+- [x] revoke access
 - [ ] $$ PROFIT $$
+
+### Deploy
+
+```sh
+docker build -t tenbounce-image .
+docker tag tenbounce-image us-central1-docker.pkg.dev/tenbounce-prod/tenbounce/tenbounce:release3
+docker push us-central1-docker.pkg.dev/tenbounce-prod/tenbounce/tenbounce
+<create new revision>
+```
