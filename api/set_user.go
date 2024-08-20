@@ -47,7 +47,7 @@ func setUserRoutes(e *echo.Echo, h HandlerClx) {
 			cookie.Expires = h.nower.Now().Add(7 * 24 * time.Hour)
 			c.SetCookie(cookie)
 
-			return c.JSON(http.StatusOK, "logged in as "+hardcodedUser.Name)
+			return c.Redirect(http.StatusFound, "/")
 		})
 	}
 
