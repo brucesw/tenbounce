@@ -2,5 +2,6 @@ tenbounce
 
 api/user_secrets.json
 api/commit_sha.txt
+api/clean.txt
 secrets/**
 !secrets/tenbounce-example.yaml
