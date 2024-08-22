@@ -5,33 +5,17 @@ import (
 
 	"fmt"
 	"net/http"
-	"tenbounce/model"
 	"time"
-
-	"encoding/json"
 
 	"github.com/labstack/echo/v4"
 )
-
-//go:embed user_secrets.json
-var hardcodedUsers_bytes []byte
-
-var hardcodedUsers []userWithSecretURL
-
-// Until user creation and auth is in place, leverage hardcoded
-// list of users, each with a secret URL used for login
-type userWithSecretURL struct {
-	model.User
-
-	SecretURL string `json:"secretURL"`
-}
 
 // register one "secret" endpoint for each hardcoded user
 // endpoint sets a signed cookie indicating user is logged in
 func setUserRoutes(e *echo.Echo, h HandlerClx) {
 	var setUserRoutes = e.Group("/set_user")
 
-	for _, hardcodedUser := range hardcodedUsers {
+	for _, hardcodedUser := range h.tempHardcodedUsers {
 		setUserRoutes.GET("/"+hardcodedUser.SecretURL, func(c echo.Context) error {
 			var cookie = new(http.Cookie)
 			cookie.Name = userIDCookieName
@@ -51,11 +35,4 @@ func setUserRoutes(e *echo.Echo, h HandlerClx) {
 		})
 	}
 
-}
-
-func init() {
-	var err = json.Unmarshal(hardcodedUsers_bytes, &hardcodedUsers)
-	if err != nil {
-		panic(fmt.Errorf("unmarshal hardcoded users %w", err))
-	}
 }

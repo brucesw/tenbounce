@@ -38,7 +38,7 @@
 
 ```sh
 docker build -t tenbounce-image .
-docker tag tenbounce-image us-central1-docker.pkg.dev/tenbounce-prod/tenbounce/tenbounce:release5
+docker tag tenbounce-image us-central1-docker.pkg.dev/tenbounce-prod/tenbounce/tenbounce:release9
 docker push us-central1-docker.pkg.dev/tenbounce-prod/tenbounce/tenbounce
 <create new revision>
 ```
