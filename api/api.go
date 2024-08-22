@@ -66,9 +66,6 @@ func apiRoutes(g *echo.Group, h HandlerClx) {
 	// Routes require user to be set
 	g.Use(h.RequireUserMiddleware)
 
-	// TODO(bruce): remove
-	tempPostgresRoute(g)
-
 	userRoutes(g, h)
 	pointRoutes(g, h)
 	pointTypeRoutes(g, h)

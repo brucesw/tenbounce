@@ -21,7 +21,6 @@ type HealthCheck struct {
 	Uptime    string    `json:"uptime"`
 }
 
-// TODO(bruce): https://bdemirpolat.medium.com/golang-compiler-directives-dc61820add40
 func healthRoute(e *echo.Echo, h HandlerClx) {
 	e.GET("/health", func(c echo.Context) error {
 

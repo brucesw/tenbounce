@@ -1,15 +1,4 @@
-package api
-
-import (
-	"fmt"
-	"net/http"
-	"tenbounce/repository"
-
-	_ "github.com/lib/pq"
-
-	"github.com/labstack/echo/v4"
-)
-
+## Postgres Notes
 /*
 docker run \
 --name myPostgresDb \
@@ -80,18 +69,3 @@ INSERT INTO point_types (id, name) VALUES
 ('dade4383-d869-4562-a680-88cb38f9972a', 'Tenboounce'),
 ('8640f8e9-0cf6-4be4-b182-d40c21a44067', 'Ten Doubles');
 */
-
-func tempPostgresRoute(g *echo.Group) {
-	g.POST("/postgres", func(c echo.Context) error {
-
-		var psqlInfo = "host=127.0.0.1 port=5455 user=postgresUser password=postgresPW dbname=postgresDB sslmode=disable"
-
-		var p Repository = repository.NewPostgresRepository(psqlInfo)
-
-		if points, err := p.ListPoints("550e8400-e29b-41d4-a716-446655440000"); err != nil {
-			return c.JSON(http.StatusInternalServerError, fmt.Errorf("list points: %w", err))
-		} else {
-			return c.JSON(http.StatusOK, points)
-		}
-	})
-}
