@@ -1,8 +1,0 @@
-# memory or postgres
-repository: memory
-
-# if repository == postgres, need postgres.data_source_name
-postgres:
-  data_source_name: host=127.0.0.1 port=5455 user=postgresUser password=postgresPW dbname=postgresDB sslmode=disable
-
-signing_secret: #< dd if=/dev/urandom bs=64 count=1 2>/dev/null | base64>

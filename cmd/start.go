@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"encoding/json"
+	"fmt"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -39,7 +42,15 @@ to quickly create a Cobra application.`,
 			panic("invalid signing secret")
 		}
 
-		var apiServer = api.NewTenbounceAPI(repo, signingSecret)
+		var userSecretsJSON = viper.GetString("user_secrets_json")
+
+		var tempHardcodedUsers = []api.UserWithSecretURL{}
+
+		if err := json.Unmarshal([]byte(userSecretsJSON), &tempHardcodedUsers); err != nil {
+			panic(fmt.Errorf("unable to unmarshal user secrets: %w", err))
+		}
+
+		var apiServer = api.NewTenbounceAPI(repo, signingSecret, tempHardcodedUsers)
 		apiServer.Logger.Fatal(apiServer.Start(":1323"))
 	},
 }

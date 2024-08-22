@@ -16,26 +16,29 @@
 - [ ] UI file structure -- static directory and handlers; see http.FileServer, also see [echo static files](https://echo.labstack.com/docs/static-files)
 - [ ] ZAP
 - [ ] open source
-- [ ] Secrets Manager
+- [x] Secrets Manager
 - [ ] Github Action
 - [ ] New Postgres user
-- [ ] New signing secret
-- [ ] mount config file in Cloud Run
+- [x] New signing secret
+- [x] mount config file in Cloud Run
+- [x] mount user_secrets.json in Cloud Run
 - [ ] deploy script
+- [x] version endpoint
+- [ ] makefile
 
 ## Features
 
 - [ ] gyms/teams/groups/classes
 - [ ] permissioning system
 - [ ] delete entities
-- [ ] responsive UI
-- [ ] immediate redirect for login
+- [x] responsive UI
+- [x] immediate redirect for login
 
 ### Deploy
 
 ```sh
 docker build -t tenbounce-image .
-docker tag tenbounce-image us-central1-docker.pkg.dev/tenbounce-prod/tenbounce/tenbounce:release3
+docker tag tenbounce-image us-central1-docker.pkg.dev/tenbounce-prod/tenbounce/tenbounce:release9
 docker push us-central1-docker.pkg.dev/tenbounce-prod/tenbounce/tenbounce
 <create new revision>
 ```

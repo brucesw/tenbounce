@@ -69,7 +69,7 @@ func initConfig() {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
-		viper.AddConfigPath(".") // look for config in the working directory
+		viper.AddConfigPath("secrets")
 		viper.SetConfigType("yaml")
 		viper.SetConfigName("tenbounce")
 	}
