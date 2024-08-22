@@ -19,9 +19,9 @@
 - [x] Secrets Manager
 - [ ] Github Action
 - [ ] New Postgres user
-- [ ] New signing secret
+- [x] New signing secret
 - [x] mount config file in Cloud Run
-- [ ] mount user_secrets.json in Cloud Run
+- [x] mount user_secrets.json in Cloud Run
 - [ ] deploy script
 - [x] version endpoint
 - [ ] makefile
