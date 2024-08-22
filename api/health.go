@@ -14,7 +14,11 @@ import (
 //go:embed commit_sha.txt
 var commitSha string
 
+//go:embed clean.txt
+var clean string
+
 type HealthCheck struct {
+	Clean     string    `json:"clean"`
 	CommitSha string    `json:"commitSha"`
 	Status    int       `json:"status"`
 	Timestamp time.Time `json:"timestamp"`
@@ -27,9 +31,10 @@ func healthRoute(e *echo.Echo, h HandlerClx) {
 		var uptime = h.nower.Now().Sub(h.startupTime)
 
 		var healthCheck = HealthCheck{
+			Clean:     clean,
+			CommitSha: commitSha,
 			Status:    http.StatusOK,
 			Timestamp: h.nower.Now(),
-			CommitSha: commitSha,
 			Uptime:    uptime.String(),
 		}
 
