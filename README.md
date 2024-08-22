@@ -23,7 +23,8 @@
 - [x] mount config file in Cloud Run
 - [ ] mount user_secrets.json in Cloud Run
 - [ ] deploy script
-- [ ] version endpoint
+- [x] version endpoint
+- [ ] makefile
 
 ## Features
 

@@ -2,6 +2,7 @@ package api
 
 import (
 	"tenbounce/util"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -9,7 +10,24 @@ import (
 type HandlerClx struct {
 	repository    Repository
 	signingSecret string
+	startupTime   time.Time
 	nower         util.Nower
+}
+
+func newHandlerClx(
+	repository Repository,
+	signingSecret string,
+) HandlerClx {
+	var nower = util.NewTimeNower()
+	var startupTime = nower.Now()
+
+	return HandlerClx{
+		repository:    repository,
+		signingSecret: signingSecret,
+		startupTime:   startupTime,
+		nower:         nower,
+	}
+
 }
 
 func NewTenbounceAPI(
@@ -18,11 +36,7 @@ func NewTenbounceAPI(
 ) *echo.Echo {
 	var apiServer = echo.New()
 
-	var handlerClx = HandlerClx{
-		repository:    repository,
-		signingSecret: signingSecret,
-		nower:         util.NewTimeNower(),
-	}
+	var handlerClx = newHandlerClx(repository, signingSecret)
 
 	uiRoutes(apiServer, handlerClx)
 
