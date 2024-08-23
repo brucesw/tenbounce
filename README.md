@@ -42,11 +42,13 @@ N.B. The backend is 100% me and the frontend is 100% ChatGPT.
 - [ ] delete entities
 - [x] responsive UI
 
-## Deploy
+## Deploy & Infrastructure
 
 The app is deployed to GCP Cloud Run via `make deploy`. The deploy script builds a Docker image, pushes it to Artifact Registry and points a new Cloud Run revision to the fresh image.
 
 Secrets, in the format described in [secrets/tenbounce-example.yaml](secrets/tenbounce-example.yaml), exist in GCP Secrets Manager and are attached to the Cloud Run container via volume mount.
+
+The data lives in a Cloud SQL Postgres instance accessed via private IP.
 
 ## Auth
 
