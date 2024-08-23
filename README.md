@@ -22,9 +22,9 @@
 - [x] New signing secret
 - [x] mount config file in Cloud Run
 - [x] mount user_secrets.json in Cloud Run
-- [ ] deploy script
+- [x] deploy script
 - [x] version endpoint
-- [ ] makefile
+- [x] Makefile
 
 ## Features
 
