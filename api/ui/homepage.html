@@ -71,6 +71,7 @@
 
     <script>
       let pointsChart; // Global variable to hold the chart instance
+      let loggedInUserID; // Variable to store logged in user's ID
 
       function sendPostRequest() {
         const decimalValue = document.getElementById("decimalInput").value;
@@ -179,6 +180,11 @@
               option.textContent = user.name;
               userDropdown.appendChild(option);
             });
+
+            // Set the default option to the logged-in user
+            if (loggedInUserID) {
+              userDropdown.value = loggedInUserID;
+            }
           })
           .catch((error) => {
             console.error("Error:", error);
@@ -203,6 +209,8 @@
           .then((data) => {
             const userInfo = document.getElementById("userInfo");
             userInfo.textContent = `Logged in as ${data.name}`;
+            loggedInUserID = data.id; // Store logged-in user's ID
+            populateUserDropdown(); // Populate user dropdown after fetching user data
           })
           .catch((error) => {
             console.error("Error:", error);
