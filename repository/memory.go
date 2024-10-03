@@ -132,6 +132,16 @@ func (r *Memory) ListUsers() ([]model.User, error) {
 	return r.users, nil
 }
 
+func (r *Memory) GetPoint(pointID string) (model.Point, error) {
+	for _, point := range r.points {
+		if point.ID == pointID {
+			return point, nil
+		}
+	}
+
+	return model.Point{}, ErrPointDoesNotExist
+}
+
 func (r *Memory) ListPoints(userID string) ([]model.Point, error) {
 	var points = []model.Point{}
 

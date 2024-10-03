@@ -16,6 +16,8 @@ func pointRoutes(g *echo.Group, h HandlerClx) {
 
 	pointRoutes.POST("", h.createPoint)
 	pointRoutes.GET("", h.listPoints)
+	// TODO(bruce): parameter?
+	pointRoutes.DELETE("/:id", h.deletePoint)
 }
 
 // TODO(bruce): Share types with db?
@@ -180,4 +182,19 @@ func (h HandlerClx) listPoints(c echo.Context) error {
 	} else {
 		return c.JSON(http.StatusOK, response)
 	}
+}
+
+func (h HandlerClx) deletePoint(c echo.Context) error {
+	var ctx = c.Request().Context()
+
+	if userID, err := contextUserID(ctx); err != nil {
+		return c.JSON(http.StatusInternalServerError, fmt.Errorf("context user id: %w", err))
+	} else if _, err := h.repository.GetUser(userID); err != nil {
+		return c.JSON(http.StatusInternalServerError, "get user")
+	} else {
+		return c.JSON(http.StatusOK)
+	}
+	// } else if points, err := h.repository.GetPoint(user.ID); err != nil {
+	// 	return c.JSON(http.StatusInternalServerError, fmt.Errorf("list points: %w", err))
+	// }
 }
