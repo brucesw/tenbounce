@@ -48,7 +48,7 @@ func (r *Postgres) GetUser(userID string) (model.User, error) {
 	var row = db.QueryRow("SELECT * FROM users WHERE id = $1", userID)
 	if err := row.Scan(&user.ID, &user.Name, &user.Email); err != nil {
 		if err == sql.ErrNoRows {
-			return model.User{}, errors.New("no user found")
+			return model.User{}, errors.New("user not found")
 		}
 
 		return model.User{}, fmt.Errorf("scan row: %w", err)
@@ -82,6 +82,26 @@ func (r *Postgres) ListUsers() ([]model.User, error) {
 	}
 
 	return users, nil
+}
+
+func (r *Postgres) GetPoint(pointID string) (model.Point, error) {
+	db, err := r.lazyPostgresDB()
+	if err != nil {
+		return model.Point{}, fmt.Errorf("lazy postgres db: %w", err)
+	}
+
+	var point = model.Point{}
+
+	var row = db.QueryRow("SELECT * FROM points WHERE id = $1", pointID)
+	if err := row.Scan(&point.ID, &point.Timestamp, &point.UserID, &point.PointTypeID, &point.Value, &point.CreatedByUserID); err != nil {
+		if err == sql.ErrNoRows {
+			return model.Point{}, errors.New("point not found")
+		}
+
+		return model.Point{}, fmt.Errorf("scan row: %w", err)
+	}
+
+	return point, nil
 }
 
 func (r *Postgres) ListPoints(userID string) ([]model.Point, error) {
@@ -120,6 +140,20 @@ func (r *Postgres) CreatePoint(p *model.Point) error {
 
 	if err = row.Scan(&p.ID); err != nil {
 		return fmt.Errorf("scan row for id: %w", err)
+	}
+
+	return nil
+}
+
+func (r *Postgres) DeletePoint(pointID string) error {
+	db, err := r.lazyPostgresDB()
+	if err != nil {
+		return fmt.Errorf("lazy postgres db: %w", err)
+	}
+
+	_, err = db.Exec("DELETE FROM points WHERE id = $1", pointID)
+	if err != nil {
+		return fmt.Errorf("db exec: %w", err)
 	}
 
 	return nil

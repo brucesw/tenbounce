@@ -13,8 +13,10 @@ type UserRepository interface {
 	ListUsers() ([]model.User, error)
 }
 type PointRepository interface {
+	GetPoint(pointID string) (model.Point, error)
 	ListPoints(userID string) ([]model.Point, error)
 	CreatePoint(p *model.Point) error
+	DeletePoint(pointID string) error
 }
 type PointTypeRepository interface {
 	ListPointTypes() ([]model.PointType, error)

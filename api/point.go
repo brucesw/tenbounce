@@ -1,9 +1,11 @@
 package api
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"tenbounce/model"
+	"tenbounce/repository"
 	"tenbounce/util"
 
 	"time"
@@ -16,6 +18,7 @@ func pointRoutes(g *echo.Group, h HandlerClx) {
 
 	pointRoutes.POST("", h.createPoint)
 	pointRoutes.GET("", h.listPoints)
+	pointRoutes.DELETE("/:id", h.deletePoint)
 }
 
 // TODO(bruce): Share types with db?
@@ -179,5 +182,29 @@ func (h HandlerClx) listPoints(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, fmt.Errorf("new list points reponse: %w", err))
 	} else {
 		return c.JSON(http.StatusOK, response)
+	}
+}
+
+func (h HandlerClx) deletePoint(c echo.Context) error {
+	var ctx = c.Request().Context()
+
+	if userID, err := contextUserID(ctx); err != nil {
+		return c.JSON(http.StatusInternalServerError, fmt.Errorf("context user id: %w", err))
+	} else if _, err := h.repository.GetUser(userID); err != nil {
+		return c.JSON(http.StatusInternalServerError, "get user")
+	} else if pointID := c.Param("id"); pointID == "" {
+		return c.JSON(http.StatusBadRequest, errors.New("blank point ID"))
+	} else if point, err := h.repository.GetPoint(pointID); err != nil {
+		if err == repository.ErrPointDoesNotExist {
+			return c.JSON(http.StatusInternalServerError, "point does not exist")
+		} else {
+			return c.JSON(http.StatusInternalServerError, fmt.Errorf("get point: %w", err))
+		}
+	} else if !(point.CreatedByUserID == userID || point.UserID == userID) {
+		return c.JSON(http.StatusBadRequest, errors.New("point must belong to or be created by user"))
+	} else if err = h.repository.DeletePoint(pointID); err != nil {
+		return c.JSON(http.StatusInternalServerError, fmt.Errorf("delete point: %w", err))
+	} else {
+		return c.JSON(http.StatusOK, nil)
 	}
 }
