@@ -222,28 +222,52 @@
         table.innerHTML = ""; // Clear existing table data
 
         const header = `
-                <tr>
-                    <th>Timestamp</th>
-                    <th>Value</th>
-                    <th>Point Type</th>
-                    <th>Created By</th>
-                </tr>
-            `;
+          <tr>
+              <th>Timestamp</th>
+              <th>Value</th>
+              <th>Point Type</th>
+              <th>Created By</th>
+              <th>Delete</th>
+          </tr>
+      `;
         table.insertAdjacentHTML("beforeend", header);
 
         data.forEach((point) => {
           const row = `
-                    <tr>
-                        <td>${new Date(point.timestamp).toLocaleString()}</td>
-                        <td>${point.value}</td>
-                        <td>${point.pointTypeName}</td>
-                        <td>${
-                          point.createdByUserName
-                        }</td> <!-- Display Created By User Name -->
-                    </tr>
-                `;
+              <tr id="point-${point.id}">
+                  <td>${new Date(point.timestamp).toLocaleString()}</td>
+                  <td>${point.value}</td>
+                  <td>${point.pointTypeName}</td>
+                  <td>${point.createdByUserName}</td>
+                  <td>
+                      <button class="btn btn-danger btn-sm" onclick="deletePoint('${
+                        point.id
+                      }')">
+                          &times;
+                      </button>
+                  </td>
+              </tr>
+          `;
           table.insertAdjacentHTML("beforeend", row);
         });
+      }
+
+      function deletePoint(pointID) {
+        fetch(`/api/points/${pointID}`, {
+          method: "DELETE",
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Failed to delete point");
+            }
+            // Remove the point row from the table
+            document.getElementById(`point-${pointID}`).remove();
+            showPopup("Point deleted successfully!");
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            showPopup("Failed to delete point.", true);
+          });
       }
 
       function updateChart(data) {

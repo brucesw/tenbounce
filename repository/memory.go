@@ -132,6 +132,16 @@ func (r *Memory) ListUsers() ([]model.User, error) {
 	return r.users, nil
 }
 
+func (r *Memory) GetPoint(pointID string) (model.Point, error) {
+	for _, point := range r.points {
+		if point.ID == pointID {
+			return point, nil
+		}
+	}
+
+	return model.Point{}, ErrPointDoesNotExist
+}
+
 func (r *Memory) ListPoints(userID string) ([]model.Point, error) {
 	var points = []model.Point{}
 
@@ -150,6 +160,20 @@ func (r *Memory) CreatePoint(p *model.Point) error {
 	r.points = append(r.points, *p)
 
 	return nil
+}
+
+func (r *Memory) DeletePoint(pointID string) error {
+	for i, point := range r.points {
+		if point.ID == pointID {
+			// Swap final element with found element, then drop final element off slice
+			r.points[i] = r.points[len(r.points)-1]
+			r.points = r.points[:len(r.points)-1]
+
+			return nil
+		}
+	}
+
+	return ErrPointDoesNotExist
 }
 
 func (r *Memory) ListPointTypes() ([]model.PointType, error) {
