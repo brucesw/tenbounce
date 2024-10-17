@@ -188,6 +188,10 @@ func (r *Memory) CreatePointType(p *model.PointType) error {
 	return nil
 }
 
+func (r *Memory) GetStatsSummary() ([]model.StatsSummary, error) {
+	return []model.StatsSummary{}, nil
+}
+
 func init() {
 	var err = json.Unmarshal(hardcodedUsers_bytes, &hardcodedUsers)
 	if err != nil {

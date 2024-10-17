@@ -200,3 +200,7 @@ func (r *Postgres) CreatePointType(p *model.PointType) error {
 
 	return nil
 }
+
+func (r *Postgres) GetStatsSummary() ([]model.StatsSummary, error) {
+	return []model.StatsSummary{}, nil
+}
