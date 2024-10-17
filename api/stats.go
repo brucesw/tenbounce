@@ -36,15 +36,35 @@ type StatsSummaryGPT struct {
 	Summary     string            `json:"summary"`
 }
 
+func anonymize(statsSummaries []model.StatsSummary) ([]model.StatsSummary, error) {
+	var anonymousSummaries []model.StatsSummary
+
+	for _, statsSummary := range statsSummaries {
+		var anonymousSummary = model.StatsSummary{
+			UserID: statsSummary.UserID,
+		}
+
+		for _, stat := range statsSummary.Stats {
+			var anonymousStat = model.Stat{
+				PointTypeID: stat.PointTypeID,
+				Values:      stat.Values,
+			}
+			anonymousSummary.Stats = append(anonymousSummary.Stats, anonymousStat)
+		}
+
+		anonymousSummaries = append(anonymousSummaries, anonymousSummary)
+	}
+
+	return anonymousSummaries, nil
+}
+
 func generateSummary(statsSummaries []model.StatsSummary) ([]StatsSummaryGPT, error) {
 	var statsSummaryGPTs []StatsSummaryGPT
 
-	// for _, statsSummary := range statsSummaries {
-	// 	var statsSummaryGPT = StatsSummaryGPT{
-	// 		UserID:      statsSummary.UserID,
-	// 		PointTypeID: statsSummary.PointTypeID,
-	// 	}
-	// }
+	anonymousSummaries, err := anonymize(statsSummaries)
+	if err != nil {
+		return nil, fmt.Errorf("anonymize: %w", err)
+	}
 
 	var summaryText = `
 	[
@@ -96,8 +116,8 @@ func (h HandlerClx) getStatsSummaryGPT(c echo.Context) error {
 		// TODO(bruce): confirm creator user has permission to create points for user
 	} else if _, err := h.repository.GetUser(userID); err != nil {
 		return c.JSON(http.StatusInternalServerError, "get user")
-		// } else if err := c.Bind(&statsSummaries); err != nil {
-		// 	return c.JSON(http.StatusInternalServerError, "bind stats summary")
+	} else if err := c.Bind(&statsSummaries); err != nil {
+		return c.JSON(http.StatusInternalServerError, "bind stats summary")
 	} else if gptSummaries, err := generateSummary(statsSummaries); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("generate summary: %w", err))
 	} else {

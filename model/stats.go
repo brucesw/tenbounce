@@ -4,7 +4,7 @@ import "time"
 
 type StatsSummary struct {
 	UserID   string `json:"userID"`
-	UserName string `json:"userName"`
+	UserName string `json:"userName,omitempty"`
 
 	Stats []Stat `json:"stats"`
 }
@@ -16,6 +16,6 @@ type MiniPoint struct {
 
 type Stat struct {
 	PointTypeID   PointTypeID   `json:"pointTypeID"`
-	PointTypeName PointTypeName `json:"pointTypeName"`
+	PointTypeName PointTypeName `json:"pointTypeName,omitempty"`
 	Values        []MiniPoint   `json:"values"`
 }
