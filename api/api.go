@@ -59,6 +59,9 @@ func NewTenbounceAPI(
 	var apiGroup = apiServer.Group("/api")
 	apiRoutes(apiGroup, handlerClx)
 
+	var statsGroup = apiServer.Group("/stats")
+	statsRoutes(statsGroup, handlerClx)
+
 	return apiServer
 }
 
@@ -69,4 +72,11 @@ func apiRoutes(g *echo.Group, h HandlerClx) {
 	userRoutes(g, h)
 	pointRoutes(g, h)
 	pointTypeRoutes(g, h)
+}
+
+func statsRoutes(g *echo.Group, h HandlerClx) {
+	// Routes require user to be set
+	g.Use(h.RequireUserMiddleware)
+
+	statsRoutez(g, h)
 }

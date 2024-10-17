@@ -189,7 +189,37 @@ func (r *Memory) CreatePointType(p *model.PointType) error {
 }
 
 func (r *Memory) GetStatsSummary() ([]model.StatsSummary, error) {
-	return []model.StatsSummary{}, nil
+	var statsSummaries = []model.StatsSummary{}
+
+	for _, user := range r.users {
+		var statsSummary = model.StatsSummary{
+			UserID:   user.ID,
+			UserName: user.Name,
+		}
+
+		statsSummaries = append(statsSummaries, statsSummary)
+	}
+
+	for _, point := range r.points {
+		for _, pointType := range r.pointTypes {
+			if point.PointTypeID == pointType.ID {
+				var stat = model.Stat{
+					PointTypeID:   point.PointTypeID,
+					PointTypeName: pointType.Name,
+					Value:         point.Value,
+					Timestamp:     point.Timestamp,
+				}
+
+				for i, statsSummary := range statsSummaries {
+					if statsSummary.UserID == point.UserID {
+						statsSummaries[i].Stats = append(statsSummary.Stats, stat)
+					}
+				}
+			}
+		}
+	}
+
+	return statsSummaries, nil
 }
 
 func init() {
