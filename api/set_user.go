@@ -18,7 +18,7 @@ func setUserRoutes(e *echo.Echo, h HandlerClx) {
 	for _, hardcodedUser := range h.tempHardcodedUsers {
 		setUserRoutes.GET("/"+hardcodedUser.SecretURL, func(c echo.Context) error {
 			var cookie = new(http.Cookie)
-			cookie.Name = userIDCookieName
+			cookie.Name = CookieName_UserID
 
 			cookieValue, err := userID_ToCookieValue(hardcodedUser.ID, h.signingSecret)
 			if err != nil {

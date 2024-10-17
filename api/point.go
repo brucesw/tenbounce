@@ -164,22 +164,21 @@ func NewListPointsResponse(points []model.Point, pointTypes []model.PointType, u
 }
 
 // TODO(bruce): document
-// TODO(bruce): responses
 func (h HandlerClx) listPoints(c echo.Context) error {
 	var ctx = c.Request().Context()
 
 	if userID, err := contextUserID(ctx); err != nil {
-		return c.JSON(http.StatusInternalServerError, fmt.Errorf("context user id: %w", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("context user id: %w", err))
 	} else if user, err := h.repository.GetUser(userID); err != nil {
-		return c.JSON(http.StatusInternalServerError, "get user")
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("get user: %w", err))
 	} else if points, err := h.repository.ListPoints(user.ID); err != nil {
-		return c.JSON(http.StatusInternalServerError, fmt.Errorf("list points: %w", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("list points: %w", err))
 	} else if pointTypes, err := h.repository.ListPointTypes(); err != nil {
-		return c.JSON(http.StatusInternalServerError, fmt.Errorf("list point types: %w", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("list point types: %w", err))
 	} else if users, err := h.repository.ListUsers(); err != nil {
-		return c.JSON(http.StatusInternalServerError, fmt.Errorf("list users: %w", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("list users: %w", err))
 	} else if response, err := NewListPointsResponse(points, pointTypes, users); err != nil {
-		return c.JSON(http.StatusInternalServerError, fmt.Errorf("new list points reponse: %w", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("new list points response: %w", err))
 	} else {
 		return c.JSON(http.StatusOK, response)
 	}

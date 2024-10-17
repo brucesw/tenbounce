@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-const userIDCookieName string = "TENBOUNCE_USER_ID"
+const CookieName_UserID string = "TENBOUNCE_USER_ID"
 
 // TODO(bruce): document
 func userID_ToCookieValue(userID, secret string) (string, error) {

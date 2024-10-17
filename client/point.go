@@ -8,7 +8,6 @@ import (
 	"tenbounce/api"
 )
 
-// TODO(bruce): Error handling
 func (c TenbounceClient) ListPoints() (api.ListPointsResponse, error) {
 	var listPointsResponse api.ListPointsResponse
 
@@ -19,7 +18,7 @@ func (c TenbounceClient) ListPoints() (api.ListPointsResponse, error) {
 	}
 
 	var cookie = http.Cookie{
-		Name:  "TENBOUNCE_USER_ID",
+		Name:  api.CookieName_UserID,
 		Value: c.cookie,
 	}
 	req.AddCookie(&cookie)
@@ -28,15 +27,18 @@ func (c TenbounceClient) ListPoints() (api.ListPointsResponse, error) {
 
 	res, err := client.Do(req)
 	if err != nil {
-		return api.ListPointsResponse{}, fmt.Errorf("client do: %w", err)
+		return api.ListPointsResponse{}, fmt.Errorf("client do request: %w", err)
 	}
 	defer res.Body.Close()
 
 	resBody, err := io.ReadAll(res.Body)
 	if err != nil {
-		return api.ListPointsResponse{}, nil
+		return api.ListPointsResponse{}, fmt.Errorf("io readall: %w", err)
 	}
-	fmt.Println("resBody", string(resBody))
+
+	if res.StatusCode >= 300 {
+		return api.ListPointsResponse{}, fmt.Errorf("error response code %d: %s", res.StatusCode, resBody)
+	}
 
 	if err = json.Unmarshal(resBody, &listPointsResponse); err != nil {
 		return api.ListPointsResponse{}, fmt.Errorf("unmarshal list points response: %w", err)
