@@ -1,12 +1,15 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"tenbounce/model"
 
 	"github.com/labstack/echo/v4"
+	"github.com/openai/openai-go"
+	"github.com/openai/openai-go/option"
 )
 
 func statsRoutez(g *echo.Group, h HandlerClx) {
@@ -58,7 +61,7 @@ func anonymize(statsSummaries []model.StatsSummary) ([]model.StatsSummary, error
 	return anonymousSummaries, nil
 }
 
-func generateSummary(statsSummaries []model.StatsSummary) ([]StatsSummaryGPT, error) {
+func generateSummary(ctx context.Context, statsSummaries []model.StatsSummary) ([]StatsSummaryGPT, error) {
 	var statsSummaryGPTs []StatsSummaryGPT
 
 	anonymousSummaries, err := anonymize(statsSummaries)
@@ -66,40 +69,28 @@ func generateSummary(statsSummaries []model.StatsSummary) ([]StatsSummaryGPT, er
 		return nil, fmt.Errorf("anonymize: %w", err)
 	}
 
-	var summaryText = `
-	[
-  {
-    "pointTypeID": "4e4b2b1c-5063-425a-a409-71b431068f78",
-    "userID": "550e8400-e29b-41d4-a716-446655440000",
-    "summary": "Bruce Szudera Wienand's Compulsory Routine shows a fluctuating trend. The values initially dropped from 21.01 to 18.15, but then rose to 24.15 before stabilizing at 21. Overall sentiment is mixed, with improvements toward the end but high variability."
-  },
-  {
-    "pointTypeID": "0d1b30ef-00d4-41d6-8581-b8d554752816",
-    "userID": "550e8400-e29b-41d4-a716-446655440000",
-    "summary": "Bruce Szudera Wienand's Optional Routine shows a slight decline, dropping from 19 to 18 over two days. The overall sentiment is slightly negative due to the downward trend."
-  },
-  {
-    "pointTypeID": "4e4b2b1c-5063-425a-a409-71b431068f78",
-    "userID": "123e4567-e89b-12d3-a456-426614174000",
-    "summary": "Derek Therrien's Compulsory Routine shows a consistent improvement, rising from 20.21 to 21 over two days. The overall sentiment is positive with gradual improvement."
-  },
-  {
-    "pointTypeID": "0d1b30ef-00d4-41d6-8581-b8d554752816",
-    "userID": "123e4567-e89b-12d3-a456-426614174000",
-    "summary": "Derek Therrien's Optional Routine has only one recorded value of 19, so no trend can be determined, but the sentiment is neutral."
-  },
-  {
-    "pointTypeID": null,
-    "userID": "987fbc97-4bed-5078-889f-8c6e44d66b00",
-    "summary": "Lourens Willekes has no stats recorded, so no trend or sentiment can be determined."
-  },
-  {
-    "pointTypeID": null,
-    "userID": "d6f0bf56-0abb-4278-9e2c-c3e0bfc18c1d",
-    "summary": "Nadia has no stats recorded, so no trend or sentiment can be determined."
-  }
-]
-`
+	var openaiClient = openai.NewClient(
+		option.WithAPIKey(OpenAIAPIKey),
+	)
+
+	var prompt = "you are a gymnastics coach taking a look at an athlete's trampoline data.  higher values are better.  take the following input data and return a response that is a JSON array where each object has a pointTypeID key, userID key and summary key.  there should be one entry per pointTypeID-userID combo in the input data.  the summary should summarize any trends in the input data for that pointTypeID-userID combo including overall trend. summary should be a string and should be english.  do not cite individial data points and definitely do not cite any timestamps.  keep the summary broad and high level.   result should ONLY be a json object, no other characters indicating that it is json or otherwise."
+
+	jsonSummaries, err := json.Marshal(anonymousSummaries)
+	if err != nil {
+		return nil, fmt.Errorf("json marshal summaries: %w", err)
+	}
+
+	chatCompletion, err := openaiClient.Chat.Completions.New(ctx, openai.ChatCompletionNewParams{
+		Messages: openai.F([]openai.ChatCompletionMessageParamUnion{
+			openai.UserMessage(fmt.Sprintf("%s\n\n%s", prompt, jsonSummaries))}),
+		Model: openai.F(openai.ChatModelGPT4Turbo),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("new chat completion: %w", err)
+	}
+
+	var summaryText = chatCompletion.Choices[0].Message.Content
+
 	if err := json.Unmarshal([]byte(summaryText), &statsSummaryGPTs); err != nil {
 		return nil, fmt.Errorf("unmarshal summary text: %w", err)
 	}
@@ -118,7 +109,7 @@ func (h HandlerClx) getStatsSummaryGPT(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, "get user")
 	} else if err := c.Bind(&statsSummaries); err != nil {
 		return c.JSON(http.StatusInternalServerError, "bind stats summary")
-	} else if gptSummaries, err := generateSummary(statsSummaries); err != nil {
+	} else if gptSummaries, err := generateSummary(ctx, statsSummaries); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("generate summary: %w", err))
 	} else {
 		fmt.Println(gptSummaries)
