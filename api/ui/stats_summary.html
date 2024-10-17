@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Stats Summary</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+        crossorigin="anonymous"
+    />
+
+    <style>
+        .expand-btn {
+            cursor: pointer;
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .expand-btn:hover {
+            text-decoration: underline;
+        }
+
+        .user-stats-table {
+            margin-top: 20px;
+        }
+
+        /* Align user details more elegantly */
+        .user-details {
+            margin-top: 20px;
+            border-top: 1px solid #dee2e6;
+            padding-top: 20px;
+        }
+
+        .stats-summary {
+            margin-top: 10px;
+        }
+
+        /* Points section emphasis */
+        .points-section {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #007bff;
+        }
+
+        /* Compact stats section */
+        .stats-summary p {
+            margin-bottom: 2px;
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        /* Popup and sidebar styles reused from provided page */
+        .popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: none;
+            z-index: 1200;
+        }
+
+        .popup.error {
+            background-color: #dc3545;
+        }
+    </style>
+
+    <script>
+        let userDataMap = {}; // Store the fetched data
+
+        function fetchUserStats() {
+            fetch('/stats/summary')
+                .then(response => response.json())
+                .then(data => {
+                    userDataMap = data.reduce((acc, user) => {
+                        acc[user.userID] = user;
+                        return acc;
+                    }, {});
+                    displayUsers(data);
+                })
+                .catch(error => console.error("Error fetching user stats:", error));
+        }
+
+        function displayUsers(users) {
+            const usersTable = document.getElementById('usersTable');
+            usersTable.innerHTML = '';
+            users.forEach(user => {
+                const statsCount = user.stats ? user.stats.length : 0;
+                const row = `
+                    <tr>
+                        <td>${user.userName}</td>
+                        <td>${statsCount}</td>
+                        <td>
+                            <a href="#" class="expand-btn" onclick="expandUser('${user.userID}')">⬇️</a>
+                        </td>
+                    </tr>
+                `;
+                usersTable.insertAdjacentHTML('beforeend', row);
+            });
+        }
+
+        function expandUser(userID) {
+            const userDetailsSection = document.getElementById('userDetails');
+            userDetailsSection.innerHTML = ''; // Clear existing details
+            const user = userDataMap[userID];
+
+            if (!user || !user.stats || user.stats.length === 0) {
+                userDetailsSection.innerHTML = `<p>No stats available for ${user.userName}.</p>`;
+                return;
+            }
+
+            const statsByType = user.stats.reduce((acc, stat) => {
+                if (!acc[stat.pointTypeID]) {
+                    acc[stat.pointTypeID] = [];
+                }
+                acc[stat.pointTypeID].push(stat);
+                return acc;
+            }, {});
+
+            Object.keys(statsByType).forEach(typeID => {
+                const stats = statsByType[typeID];
+                stats.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                const pointTypeName = stats[0].pointTypeName;
+                
+                const pointValues = stats.map(stat => stat.pointValue);
+                const avgValue = (pointValues.reduce((acc, value) => acc + value, 0) / pointValues.length).toFixed(2);
+                const minValue = Math.min(...pointValues).toFixed(2);
+                const maxValue = Math.max(...pointValues).toFixed(2);
+                const count = pointValues.length;
+
+                const statsRow = `
+                    <div class="stats-summary">
+                        <div class="points-section">${pointTypeName}: ${pointValues.join(', ')}</div>
+                        <p>Count: ${count} | Min: ${minValue} | Max: ${maxValue} | Avg: ${avgValue}</p>
+                    </div>
+                `;
+                userDetailsSection.insertAdjacentHTML('beforeend', statsRow);
+            });
+        }
+
+        window.onload = fetchUserStats;
+    </script>
+</head>
+<body>
+    <div class="container my-5">
+        <h1>User Stats Summary</h1>
+
+        <table class="table table-bordered user-stats-table">
+            <thead>
+                <tr>
+                    <th>User Name</th>
+                    <th>Count</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody id="usersTable">
+                <!-- User rows will be populated here -->
+            </tbody>
+        </table>
+
+        <div id="userDetails" class="user-details">
+            <!-- Expanded user stats will be displayed here -->
+        </div>
+    </div>
+
+    <div id="popup" class="popup"></div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js"
+        integrity="sha512-TPh2Oxlg1zp+kz3nFA0C5vVC6leG/6mm1z9+mA81MI5eaUVqasPLO8Cuk4gMF4gUfP5etR73rgU/8PNMsSesoQ=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+    ></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+        integrity="sha384-QhhUxRWxbUHZ2elofMvB51Bo+sXSCZKPpgoeVOzQEDsnEr/efpp1iz15ZLtJwH28"
+        crossorigin="anonymous"
+    ></script>
+</body>
+</html>
