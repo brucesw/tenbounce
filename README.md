@@ -34,12 +34,13 @@ N.B. The backend is 100% me and the frontend is 100% ChatGPT.
 - [x] deploy script
 - [x] version endpoint
 - [x] Makefile
+- [ ] App communicates if no db
 
 ## Features
 
 - [ ] gyms/teams/groups/classes
 - [ ] permissioning system
-- [ ] delete entities
+- [x] delete entities
 - [x] responsive UI
 
 ## Deploy & Infrastructure

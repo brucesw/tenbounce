@@ -9,7 +9,7 @@ import (
 // TODO(bruce): document
 func (h HandlerClx) RequireUserMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		if userIDCookie, err := c.Cookie(userIDCookieName); err != nil {
+		if userIDCookie, err := c.Cookie(CookieName_UserID); err != nil {
 			return c.JSON(http.StatusUnauthorized, "get user id cookie")
 		} else if userID, err := userID_FromCookieValue(userIDCookie.Value, h.signingSecret); err != nil {
 			return c.JSON(http.StatusUnauthorized, "user id from cookie value")

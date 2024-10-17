@@ -15,7 +15,7 @@ var unauthorizedHTML string
 
 func uiRoutes(e *echo.Echo, h HandlerClx) {
 	e.GET("", func(c echo.Context) error {
-		if userIDCookie, err := c.Cookie(userIDCookieName); err != nil {
+		if userIDCookie, err := c.Cookie(CookieName_UserID); err != nil {
 			return c.HTML(http.StatusUnauthorized, unauthorizedHTML)
 		} else if userID, err := userID_FromCookieValue(userIDCookie.Value, h.signingSecret); err != nil {
 			return c.HTML(http.StatusUnauthorized, unauthorizedHTML)
