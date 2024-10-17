@@ -243,16 +243,34 @@ func (r *Memory) GetStatsSummary() ([]model.StatsSummary, error) {
 	for _, point := range r.points {
 		for _, pointType := range r.pointTypes {
 			if point.PointTypeID == pointType.ID {
-				var stat = model.Stat{
-					PointTypeID:   point.PointTypeID,
-					PointTypeName: pointType.Name,
-					Value:         point.Value,
-					Timestamp:     point.Timestamp,
+				// Create a new MiniPoint for the current point
+				miniPoint := model.MiniPoint{
+					Value:     point.Value,
+					Timestamp: point.Timestamp,
 				}
 
 				for i, statsSummary := range statsSummaries {
 					if statsSummary.UserID == point.UserID {
-						statsSummaries[i].Stats = append(statsSummary.Stats, stat)
+						// Find the corresponding stat for the PointTypeID
+						var found bool
+						for j, stat := range statsSummaries[i].Stats {
+							if stat.PointTypeID == point.PointTypeID {
+								// Append the MiniPoint to the existing stat's Values
+								statsSummaries[i].Stats[j].Values = append(stat.Values, miniPoint)
+								found = true
+								break
+							}
+						}
+
+						// If stat for the PointTypeID wasn't found, create a new one
+						if !found {
+							newStat := model.Stat{
+								PointTypeID:   point.PointTypeID,
+								PointTypeName: pointType.Name,
+								Values:        []model.MiniPoint{miniPoint},
+							}
+							statsSummaries[i].Stats = append(statsSummaries[i].Stats, newStat)
+						}
 					}
 				}
 			}

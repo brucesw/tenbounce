@@ -9,9 +9,13 @@ type StatsSummary struct {
 	Stats []Stat `json:"stats"`
 }
 
+type MiniPoint struct {
+	Value     PointValue `json:"pointValue"`
+	Timestamp time.Time  `json:"timestamp"`
+}
+
 type Stat struct {
 	PointTypeID   PointTypeID   `json:"pointTypeID"`
 	PointTypeName PointTypeName `json:"pointTypeName"`
-	Value         PointValue    `json:"pointValue"`
-	Timestamp     time.Time     `json:"timestamp"`
+	Values        []MiniPoint   `json:"values"`
 }
