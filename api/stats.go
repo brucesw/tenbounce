@@ -112,7 +112,6 @@ func (h HandlerClx) getStatsSummaryGPT(c echo.Context) error {
 	} else if gptSummaries, err := generateSummary(ctx, statsSummaries); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("generate summary: %w", err))
 	} else {
-		fmt.Println(gptSummaries)
 		return c.JSON(http.StatusOK, gptSummaries)
 	}
 }
