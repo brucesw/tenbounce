@@ -78,40 +78,40 @@
       }
     </style>
 
-<script>
-  let userDataMap = {}; // Store the fetched data
-  let gptSummaryMap = {}; // Store the GPT summaries
+    <script>
+      let userDataMap = {}; // Store the fetched data
+      let gptSummaryMap = {}; // Store the GPT summaries
 
-  // Fetch stats from /stats/summary and display them
-  function fetchUserStats() {
-    fetch("/stats/summary")
-      .then((response) => response.json())
-      .then((data) => {
-        // Store user data in the map
-        userDataMap = data.reduce((acc, user) => {
-          acc[user.userID] = user;
-          return acc;
-        }, {});
+      // Fetch stats from /stats/summary and display them
+      function fetchUserStats() {
+        fetch("/stats/summary")
+          .then((response) => response.json())
+          .then((data) => {
+            // Store user data in the map
+            userDataMap = data.reduce((acc, user) => {
+              acc[user.userID] = user;
+              return acc;
+            }, {});
 
-        // Display the users and their stats immediately
-        displayUsers(data);
+            // Display the users and their stats immediately
+            displayUsers(data);
 
-        // Automatically forward data to /stats/summary_gpt after displaying stats
-        fetchGptSummaries(data);
-      })
-      .catch((error) => console.error("Error fetching user stats:", error));
-  }
+            // Automatically forward data to /stats/summary_gpt after displaying stats
+            fetchGptSummaries(data);
+          })
+          .catch((error) => console.error("Error fetching user stats:", error));
+      }
 
-  // Display users and their basic stats
-  function displayUsers(users) {
-    const usersTable = document.getElementById("usersTable");
-    usersTable.innerHTML = "";
-    users.forEach((user) => {
-      const totalPoints = user.stats
-        ? user.stats.reduce((sum, stat) => sum + stat.values.length, 0)
-        : 0;
+      // Display users and their basic stats
+      function displayUsers(users) {
+        const usersTable = document.getElementById("usersTable");
+        usersTable.innerHTML = "";
+        users.forEach((user) => {
+          const totalPoints = user.stats
+            ? user.stats.reduce((sum, stat) => sum + stat.values.length, 0)
+            : 0;
 
-      const row = `
+          const row = `
         <tr>
           <td>${user.userName}</td>
           <td>${totalPoints}</td>
@@ -120,92 +120,96 @@
           </td>
         </tr>
       `;
-      usersTable.insertAdjacentHTML("beforeend", row);
-    });
-  }
-
-  // Automatically forward data to /stats/summary_gpt for additional summaries
-  function fetchGptSummaries(users) {
-    fetch("/stats/summary_gpt", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(users),
-    })
-      .then((response) => response.json())
-      .then((gptData) => {
-        // Store GPT summaries in the map for easy lookup
-        gptData.forEach((item) => {
-          const { userID, pointTypeID, summary } = item;
-          if (!gptSummaryMap[userID]) {
-            gptSummaryMap[userID] = {};
-          }
-          gptSummaryMap[userID][pointTypeID] = summary;
+          usersTable.insertAdjacentHTML("beforeend", row);
         });
+      }
+      // Automatically forward data to /stats/summary_gpt for additional summaries
+      function fetchGptSummaries(users) {
+        fetch("/stats/summary_gpt", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(users),
+        })
+          .then((response) => response.json())
+          .then((gptData) => {
+            // Store GPT summaries in the map for easy lookup
+            gptData.forEach((item) => {
+              const { userID, pointTypeID, summary } = item;
+              if (!gptSummaryMap[userID]) {
+                gptSummaryMap[userID] = {};
+              }
+              gptSummaryMap[userID][pointTypeID] = summary;
+            });
 
-        // After receiving GPT summaries, update the expanded sections if open
-        console.log("GPT summaries loaded:", gptSummaryMap);
-      })
-      .catch((error) =>
-        console.error("Error fetching GPT summaries:", error)
-      );
-  }
+            // Check if a user is currently expanded, and refresh its details
+            const userDetailsSection = document.getElementById("userDetails");
+            if (userDetailsSection && userDetailsSection.dataset.userId) {
+              const expandedUserId = userDetailsSection.dataset.userId;
+              expandUser(expandedUserId); // Re-expand the same user to refresh the content
+            }
 
-  // Expand user details and display stats, including GPT summaries if available
-  function expandUser(userID) {
-    const userDetailsSection = document.getElementById("userDetails");
-    userDetailsSection.innerHTML = ""; // Clear existing details
-    const user = userDataMap[userID];
+            console.log("GPT summaries loaded:", gptSummaryMap);
+          })
+          .catch((error) =>
+            console.error("Error fetching GPT summaries:", error)
+          );
+      }
 
-    if (!user || !user.stats || user.stats.length === 0) {
-      userDetailsSection.innerHTML = `<p>No stats available for ${user.userName}.</p>`;
-      return;
-    }
+      // Expand user details and display stats, including GPT summaries if available
+      function expandUser(userID) {
+        const userDetailsSection = document.getElementById("userDetails");
+        userDetailsSection.innerHTML = ""; // Clear existing details
+        userDetailsSection.dataset.userId = userID; // Store the expanded user ID for later refresh
+        const user = userDataMap[userID];
 
-    user.stats.forEach((stat) => {
-      const pointTypeName = stat.pointTypeName;
-      const pointTypeID = stat.pointTypeID;
+        if (!user || !user.stats || user.stats.length === 0) {
+          userDetailsSection.innerHTML = `<p>No stats available for ${user.userName}.</p>`;
+          return;
+        }
 
-      // Sort values by timestamp in descending order (newest first)
-      const sortedValues = stat.values.sort(
-        (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
-      );
+        user.stats.forEach((stat) => {
+          const pointTypeName = stat.pointTypeName;
+          const pointTypeID = stat.pointTypeID;
 
-      const pointValues = sortedValues.map((value) => value.pointValue);
-      const avgValue = (
-        pointValues.reduce((acc, value) => acc + value, 0) / pointValues.length
-      ).toFixed(2);
-      const minValue = Math.min(...pointValues).toFixed(2);
-      const maxValue = Math.max(...pointValues).toFixed(2);
-      const count = pointValues.length;
+          // Sort values by timestamp in descending order (newest first)
+          const sortedValues = stat.values.sort(
+            (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+          );
 
-      // Create a compact, comma-separated list of values
-      const valuesList = pointValues
-        .map((value) => value.toFixed(2))
-        .join(", ");
+          const pointValues = sortedValues.map((value) => value.pointValue);
+          const avgValue = (
+            pointValues.reduce((acc, value) => acc + value, 0) /
+            pointValues.length
+          ).toFixed(2);
+          const minValue = Math.min(...pointValues).toFixed(2);
+          const maxValue = Math.max(...pointValues).toFixed(2);
+          const count = pointValues.length;
 
-      // Get the summary from GPT if available
-      const gptSummary = gptSummaryMap[userID]?.[pointTypeID] || "";
+          // Create a compact, comma-separated list of values
+          const valuesList = pointValues
+            .map((value) => value.toFixed(2))
+            .join(", ");
 
-      const statsRow = `
-        <div class="stats-summary">
-          <div class="points-section">${pointTypeName}</div>
-          <p class="compact-values">${valuesList}</p>
-          <p>Count: ${count} | Min: ${minValue} | Max: ${maxValue} | Avg: ${avgValue}</p>
-          ${gptSummary ? `<p><strong>Summary:</strong> ${gptSummary}</p>` : ""}
-        </div>
-      `;
-      userDetailsSection.insertAdjacentHTML("beforeend", statsRow);
-    });
-  }
+          // Get the summary from GPT if available
+          const gptSummary = gptSummaryMap[userID]?.[pointTypeID] || "";
 
-  // Fetch user stats on page load
-  window.onload = fetchUserStats;
-</script>
+          const statsRow = `
+      <div class="stats-summary">
+        <div class="points-section">${pointTypeName}</div>
+        <p class="compact-values">${valuesList}</p>
+        <p>Count: ${count} | Min: ${minValue} | Max: ${maxValue} | Avg: ${avgValue}</p>
+        ${gptSummary ? `<p><strong>Summary:</strong> ${gptSummary}</p>` : ""}
+      </div>
+    `;
+          userDetailsSection.insertAdjacentHTML("beforeend", statsRow);
+        });
+      }
 
-
-
+      // Fetch user stats on page load
+      window.onload = fetchUserStats;
+    </script>
   </head>
   <body>
     <!-- Top Navigation -->
