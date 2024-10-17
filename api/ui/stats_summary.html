@@ -169,42 +169,74 @@
           return;
         }
 
+        const pointsByTypeAndDay = {};
+
+        // Group points by pointTypeID and date
         user.stats.forEach((stat) => {
           const pointTypeName = stat.pointTypeName;
           const pointTypeID = stat.pointTypeID;
 
-          // Sort values by timestamp in descending order (newest first)
+          // Sort values by timestamp in ascending order (earliest first)
           const sortedValues = stat.values.sort(
-            (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+            (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
           );
 
-          const pointValues = sortedValues.map((value) => value.pointValue);
-          const avgValue = (
-            pointValues.reduce((acc, value) => acc + value, 0) /
-            pointValues.length
-          ).toFixed(2);
-          const minValue = Math.min(...pointValues).toFixed(2);
-          const maxValue = Math.max(...pointValues).toFixed(2);
-          const count = pointValues.length;
+          // Group by day for each pointTypeID
+          sortedValues.forEach((value) => {
+            const date = new Date(value.timestamp).toISOString().split("T")[0]; // Get the date part
+            if (!pointsByTypeAndDay[pointTypeID]) {
+              pointsByTypeAndDay[pointTypeID] = {
+                pointTypeName,
+                dailyValues: {},
+              };
+            }
+            if (!pointsByTypeAndDay[pointTypeID].dailyValues[date]) {
+              pointsByTypeAndDay[pointTypeID].dailyValues[date] = [];
+            }
+            pointsByTypeAndDay[pointTypeID].dailyValues[date].push(
+              value.pointValue
+            );
+          });
+        });
 
-          // Create a compact, comma-separated list of values
-          const valuesList = pointValues
-            .map((value) => value.toFixed(2))
-            .join(", ");
-
-          // Get the summary from GPT if available
-          const gptSummary = gptSummaryMap[userID]?.[pointTypeID] || "";
-
-          const statsRow = `
+        // Create sections for each point type ID
+        for (const pointTypeID in pointsByTypeAndDay) {
+          const { pointTypeName, dailyValues } =
+            pointsByTypeAndDay[pointTypeID];
+          const statsSection = `
       <div class="stats-summary">
         <div class="points-section">${pointTypeName}</div>
-        <p class="compact-values">${valuesList}</p>
-        <p>Count: ${count} | Min: ${minValue} | Max: ${maxValue} | Avg: ${avgValue}</p>
-        ${gptSummary ? `<p><strong>Summary:</strong> ${gptSummary}</p>` : ""}
-      </div>
     `;
-          userDetailsSection.insertAdjacentHTML("beforeend", statsRow);
-        });
+          userDetailsSection.insertAdjacentHTML("beforeend", statsSection);
+
+          // Sort the days in descending order (newest first)
+          const sortedDays = Object.keys(dailyValues).sort(
+            (a, b) => new Date(b) - new Date(a)
+          );
+
+          // Create subsections for each day
+          sortedDays.forEach((day) => {
+            const valuesList = dailyValues[day]
+              .map((value) => value.toFixed(2))
+              .join(", "); // Create a comma-separated list of values
+            const daySection = `
+        <p>${day}: ${valuesList}</p>
+      `;
+            userDetailsSection.insertAdjacentHTML("beforeend", daySection);
+          });
+
+          // Add GPT summary if available
+          const gptSummary = gptSummaryMap[userID]?.[pointTypeID] || "";
+          if (gptSummary) {
+            userDetailsSection.insertAdjacentHTML(
+              "beforeend",
+              `<p><strong>Summary:</strong> ${gptSummary}</p>`
+            );
+          }
+
+          // Close the stats section
+          userDetailsSection.insertAdjacentHTML("beforeend", `</div>`);
+        }
       }
 
       // Fetch user stats on page load
