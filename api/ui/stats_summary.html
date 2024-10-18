@@ -76,6 +76,36 @@
       .popup.error {
         background-color: #dc3545;
       }
+
+      header {
+        background-color: #f8f9fa; /* Light gray background */
+      }
+
+      .navbar {
+        display: flex;
+        justify-content: space-between; /* Space between brand and links */
+        align-items: center; /* Center vertically */
+        padding: 15px 20px; /* Padding around the navbar */
+      }
+
+      .brand {
+        font-size: 24px; /* Brand font size */
+        font-weight: bold; /* Bold brand text */
+      }
+
+      .nav-links {
+        display: flex; /* Display links in a row */
+      }
+
+      .nav-links a {
+        text-decoration: none; /* Remove underline from links */
+        color: #007bff; /* Bootstrap primary color */
+        padding: 0 15px; /* Spacing between links */
+      }
+
+      .nav-links a:hover {
+        text-decoration: underline; /* Underline on hover */
+      }
     </style>
 
     <script>
@@ -255,29 +285,15 @@
     </script>
   </head>
   <body>
-    <!-- Top Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="#">Tenbounce</a>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbarNav"
-        aria-controls="navbarNav"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-          <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-          <li class="nav-item">
-            <a class="nav-link" href="/stats_summary">Stats</a>
-          </li>
-        </ul>
+    <header>
+      <div class="navbar">
+        <div class="brand">Tenbounce</div>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/stats_summary">Stats</a>
+        </div>
       </div>
-    </nav>
+    </header>
 
     <div class="container my-5">
       <h1>User Stats Summary</h1>
