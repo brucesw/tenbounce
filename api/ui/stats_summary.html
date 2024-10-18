@@ -141,15 +141,33 @@
             ? user.stats.reduce((sum, stat) => sum + stat.values.length, 0)
             : 0;
 
+          // Calculate today's points
+          const today = new Date().toISOString().split("T")[0];
+          const todayPoints = user.stats
+            ? user.stats.reduce((sum, stat) => {
+                return (
+                  sum +
+                  stat.values.filter((value) => {
+                    const date = new Date(value.timestamp)
+                      .toISOString()
+                      .split("T")[0];
+                    return date === today;
+                  }).length
+                );
+              }, 0)
+            : 0;
+
           const row = `
-        <tr>
-          <td>${user.userName}</td>
-          <td>${totalPoints}</td>
-          <td>
-            <a href="#" class="expand-btn" onclick="expandUser('${user.userID}')">⬇️</a>
-          </td>
-        </tr>
-      `;
+                <tr>
+                  <td>${user.userName}</td>
+                  <td>${totalPoints}</td>
+                  <td>${todayPoints}</td> <!-- New column for today's points -->
+                  <td>
+                    <a href="#" class="expand-btn" onclick="expandUser('${user.userID}')">⬇️</a>
+                  </td>
+                </tr>
+`;
+
           usersTable.insertAdjacentHTML("beforeend", row);
         });
       }
@@ -246,7 +264,7 @@
           const statsSection = `
       <div class="stats-summary">
         <div class="points-section">${pointTypeName}</div>
-        <p>Summary: Max: ${maxPoints} | Min: ${minPoints} | Count: ${countPoints} | Average: ${averagePoints}</p>
+        <p>Stats: Max: ${maxPoints} | Min: ${minPoints} | Count: ${countPoints} | Average: ${averagePoints}</p>
     `;
           userDetailsSection.insertAdjacentHTML("beforeend", statsSection);
 
@@ -261,7 +279,7 @@
               .map((value) => value.toFixed(2))
               .join(", "); // Create a comma-separated list of values
             const daySection = `
-        <p>${day}: ${valuesList}</p>
+        <p>${day} (${dailyValues[day].length}) points: ${valuesList}</p>
       `;
             userDetailsSection.insertAdjacentHTML("beforeend", daySection);
           });
@@ -303,6 +321,7 @@
           <tr>
             <th>User Name</th>
             <th>Total Points</th>
+            <th>Today's Points</th>
             <th>Details</th>
           </tr>
         </thead>
