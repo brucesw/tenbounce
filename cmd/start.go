@@ -39,7 +39,12 @@ to quickly create a Cobra application.`,
 
 		var signingSecret = viper.GetString("signing_secret")
 		if signingSecret == "" {
-			panic("invalid signing secret")
+			panic("empty signing secret")
+		}
+
+		var openAIAPIKey = viper.GetString("open_ai_api_key")
+		if signingSecret == "" {
+			panic("empty open ai api key secret")
 		}
 
 		var userSecretsJSON = viper.GetString("user_secrets_json")
@@ -50,7 +55,12 @@ to quickly create a Cobra application.`,
 			panic(fmt.Errorf("unable to unmarshal user secrets: %w", err))
 		}
 
-		var apiServer = api.NewTenbounceAPI(repo, signingSecret, tempHardcodedUsers)
+		var apiServer = api.NewTenbounceAPI(
+			repo,
+			signingSecret,
+			tempHardcodedUsers,
+			openAIAPIKey,
+		)
 		apiServer.Logger.Fatal(apiServer.Start(":1323"))
 	},
 }
