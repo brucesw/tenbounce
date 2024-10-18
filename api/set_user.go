@@ -31,7 +31,9 @@ func setUserRoutes(e *echo.Echo, h HandlerClx) {
 			cookie.Expires = h.nower.Now().Add(7 * 24 * time.Hour)
 			c.SetCookie(cookie)
 
-			return c.Redirect(http.StatusFound, "/")
+			var redirect = c.QueryParam("redirect")
+
+			return c.Redirect(http.StatusFound, "/" + redirect)
 		})
 	}
 
