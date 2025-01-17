@@ -13,6 +13,9 @@ var homepageHTML string
 //go:embed ui/unauthorized.html
 var unauthorizedHTML string
 
+//go:embed ui/difficulty.html
+var difficultyHTML string
+
 func uiRoutes(e *echo.Echo, h HandlerClx) {
 	e.GET("", func(c echo.Context) error {
 		if userIDCookie, err := c.Cookie(CookieName_UserID); err != nil {
@@ -24,5 +27,9 @@ func uiRoutes(e *echo.Echo, h HandlerClx) {
 		}
 
 		return c.HTML(http.StatusOK, homepageHTML)
+	})
+
+	e.GET("/difficulty", func(c echo.Context) error {
+		return c.HTML(http.StatusOK, difficultyHTML)
 	})
 }
