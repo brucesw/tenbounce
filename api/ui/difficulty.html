@@ -40,6 +40,38 @@
       .checkbox {
         margin: 10px;
       }
+      .timer {
+        font-size: 24px;
+        margin-top: 20px;
+      }
+      .times-list {
+        margin-top: 20px;
+        font-size: 16px;
+      }
+
+      /* Add the jitter animation */
+      @keyframes jitter {
+        0% {
+          transform: translateY(0);
+        }
+        25% {
+          transform: translateY(2px);
+        }
+        50% {
+          transform: translateY(-2px);
+        }
+        75% {
+          transform: translateY(1px);
+        }
+        100% {
+          transform: translateY(0);
+        }
+      }
+
+      /* Apply the jitter effect to the body */
+      .jitter {
+        animation: jitter 0.5s ease-in-out;
+      }
     </style>
   </head>
   <body>
@@ -66,6 +98,16 @@
     <div class="score">
       <p>Correct: <span id="correctScore">0</span></p>
       <p>Incorrect: <span id="incorrectScore">0</span></p>
+    </div>
+
+    <div class="timer">
+      Time to Correct Answer: <span id="timerDisplay">0.00</span> seconds
+    </div>
+
+    <div class="times-list">Last 5 Times: <span id="lastTimes"></span></div>
+
+    <div class="average">
+      Average Time: <span id="averageTime">X.XX</span> seconds
     </div>
 
     <script>
@@ -144,6 +186,10 @@
 
       let correctScore = 0;
       let incorrectScore = 0;
+      let timesToCorrectAnswer = [];
+      let timer;
+      let startTime;
+      let isFirstIteration = true;
 
       function getRandomKeyFromSelectedMaps() {
         const selectedMaps = [];
@@ -199,6 +245,52 @@
         });
       }
 
+      function startTimer() {
+        startTime = Date.now();
+        timer = setInterval(function () {
+          const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+          document.getElementById("timerDisplay").textContent = elapsed;
+        }, 100);
+      }
+
+      function stopTimer() {
+        clearInterval(timer);
+        const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+
+        if (!isFirstIteration) {
+          timesToCorrectAnswer.push(parseFloat(elapsed));
+          if (timesToCorrectAnswer.length > 5) {
+            timesToCorrectAnswer.shift();
+          }
+        }
+        updateLastTimesDisplay();
+        updateAverageTime();
+
+        // Only trigger jitter if the user answers in less than 1 second
+        if (parseFloat(elapsed) < 1) {
+          document.body.classList.add("jitter");
+          setTimeout(() => {
+            document.body.classList.remove("jitter");
+          }, 250); // Duration of the jitter animation
+        }
+      }
+
+      function updateLastTimesDisplay() {
+        document.getElementById("lastTimes").textContent = timesToCorrectAnswer
+          .map((time) => time.toFixed(2))
+          .join(", ");
+      }
+
+      function updateAverageTime() {
+        if (timesToCorrectAnswer.length > 0) {
+          const average = (
+            timesToCorrectAnswer.reduce((sum, time) => sum + time, 0) /
+            timesToCorrectAnswer.length
+          ).toFixed(2);
+          document.getElementById("averageTime").textContent = average;
+        }
+      }
+
       function renderQuestion() {
         const key = getRandomKeyFromSelectedMaps();
         if (!key) return;
@@ -234,7 +326,10 @@
               button.classList.add("correct");
               correctScore++;
               disableAllButtons();
+              stopTimer();
+
               setTimeout(renderQuestion, 1000); // Wait a second before showing the next question
+              isFirstIteration = false;
             } else {
               button.classList.add("incorrect");
               incorrectScore++;
@@ -243,6 +338,10 @@
           };
           buttonsDiv.appendChild(button);
         });
+
+        if (!isFirstIteration) {
+          startTimer();
+        }
       }
 
       document
