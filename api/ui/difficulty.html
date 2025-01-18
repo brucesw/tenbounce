@@ -105,9 +105,7 @@
       <p>Incorrect: <span id="incorrectScore">0</span></p>
     </div>
 
-    <div class="timer">
-      Time to Correct Answer: <span id="timerDisplay">0.00</span> seconds
-    </div>
+    <div class="timer"><span id="timerDisplay">0.00</span> seconds</div>
 
     <div class="times-list">Last 5 Times: <span id="lastTimes"></span></div>
 
@@ -274,7 +272,6 @@
 
         // Only trigger jitter if the user answers in less than 1 second
         if (parseFloat(elapsed) < 1) {
-          console.log(elapsed);
           document.body.classList.add("jitter");
           setTimeout(() => {
             document.body.classList.remove("jitter");
