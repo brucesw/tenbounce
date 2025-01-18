@@ -20,6 +20,8 @@
         border-radius: 5px;
         background-color: #f0f0f0;
         transition: background-color 0.3s;
+        width: 80px; /* Set a fixed width for all buttons */
+        text-align: center; /* Ensure the text is centered inside the button */
       }
       .button:hover {
         background-color: #e0e0e0;
@@ -88,6 +90,9 @@
       </label>
       <label class="checkbox">
         <input type="checkbox" id="quadsCheckbox" /> Quadruples
+      </label>
+      <label class="checkbox">
+        <input type="checkbox" id="speedModeCheckbox" /> Speed Mode
       </label>
     </div>
 
@@ -190,6 +195,7 @@
       let timer;
       let startTime;
       let isFirstIteration = true;
+      let isSpeedMode = false;
 
       function getRandomKeyFromSelectedMaps() {
         const selectedMaps = [];
@@ -268,6 +274,7 @@
 
         // Only trigger jitter if the user answers in less than 1 second
         if (parseFloat(elapsed) < 1) {
+          console.log(elapsed);
           document.body.classList.add("jitter");
           setTimeout(() => {
             document.body.classList.remove("jitter");
@@ -328,7 +335,12 @@
               disableAllButtons();
               stopTimer();
 
-              setTimeout(renderQuestion, 1000); // Wait a second before showing the next question
+              // If speed mode is off, wait for a second before next question
+              if (!isSpeedMode) {
+                setTimeout(renderQuestion, 1000); // Wait a second before showing the next question
+              } else {
+                renderQuestion();
+              }
               isFirstIteration = false;
             } else {
               button.classList.add("incorrect");
@@ -343,6 +355,13 @@
           startTimer();
         }
       }
+
+      // Listen for changes in the speed mode checkbox
+      document
+        .getElementById("speedModeCheckbox")
+        .addEventListener("change", (e) => {
+          isSpeedMode = e.target.checked;
+        });
 
       document
         .querySelectorAll('input[type="checkbox"]')
