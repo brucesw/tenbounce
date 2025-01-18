@@ -1,1 +1,257 @@
-<h1> DIFFICULTY </h1>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Skill Difficulty Quiz</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin-top: 50px;
+      }
+      .button {
+        display: inline-block;
+        padding: 10px 20px;
+        margin: 10px;
+        font-size: 18px;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        background-color: #f0f0f0;
+        transition: background-color 0.3s;
+      }
+      .button:hover {
+        background-color: #e0e0e0;
+      }
+      .correct {
+        background-color: green !important;
+        color: white;
+      }
+      .incorrect {
+        background-color: #d1a6a6 !important;
+        color: white;
+        pointer-events: none;
+      }
+      .score {
+        font-size: 20px;
+        margin-top: 20px;
+      }
+      .checkbox {
+        margin: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Skill Difficulty Quiz</h1>
+    <div>
+      <label class="checkbox">
+        <input type="checkbox" id="singlesCheckbox" checked /> Singles
+      </label>
+      <label class="checkbox">
+        <input type="checkbox" id="doublesCheckbox" /> Doubles
+      </label>
+      <label class="checkbox">
+        <input type="checkbox" id="triplesCheckbox" /> Triples
+      </label>
+      <label class="checkbox">
+        <input type="checkbox" id="quadsCheckbox" /> Quadruples
+      </label>
+    </div>
+
+    <h2 id="key"></h2>
+
+    <div id="buttons"></div>
+
+    <div class="score">
+      <p>Correct: <span id="correctScore">0</span></p>
+      <p>Incorrect: <span id="incorrectScore">0</span></p>
+    </div>
+
+    <script>
+      const skillsDifficulty_Singles = {
+        "4 0 o": 0.5,
+        "4 0 <": 0.6,
+        "4 0 /": 0.6,
+        "4 1 o": 0.6,
+        "4 1 <": 0.6,
+        "4 1 /": 0.6,
+        "4 2 /": 0.7,
+        "4 3 /": 0.8,
+        "4 4 /": 0.9,
+        "4 5 /": 1.0,
+        "4 6 /": 1.1,
+        "4 7 /": 1.2,
+        "4 8 /": 1.3,
+        "4 9 /": 1.4,
+      };
+
+      const skillsDifficulty_Doubles = {
+        "8 00 o": 1.1,
+        "8 00 <": 1.3,
+        "8 00 /": 1.3,
+        "8 01 o": 1.1,
+        "8 01 <": 1.3,
+        "8 01 /": 1.3,
+        "8 03 o": 1.3,
+        "8 03 <": 1.5,
+        "8 11 o": 1.3,
+        "8 11 <": 1.5,
+      };
+
+      const skillsDifficulty_Triples = {
+        "12 000 o": 1.8,
+        "12 000 <": 2.1,
+        "12 000 /": 2.1,
+        "12 001 o": 1.7,
+        "12 001 <": 2.0,
+        "12 003 o": 2.1,
+        "12 003 <": 2.4,
+        "12 021 o": 2.1,
+        "12 021 <": 2.4,
+        "12 023 o": 2.7,
+        "12 023 <": 3.0,
+        "12 101 o": 2.0,
+        "12 101 <": 2.3,
+        "12 103 o": 2.6,
+        "12 103 <": 2.9,
+        "12 121 o": 2.6,
+        "12 121 <": 2.9,
+        "12 122 o": 3.2,
+        "12 121 <": 2.9,
+        "12 222 o": 3.2,
+        "12 222 /": 3.5,
+        "12 221 o": 2.7,
+        "12 221 <": 3.0,
+        "12 201 o": 2.1,
+        "12 201 <": 2.4,
+        "12 203 o": 2.7,
+        "12 203 <": 3.0,
+        "12 303 o": 3.2,
+        "12 303 <": 3.5,
+      };
+
+      const skillsDifficulty_Quads = {
+        "16 0001 o": 2.5,
+        "16 0001 <": 2.9,
+        "16 0003 o": 3.1,
+        "16 0003 <": 3.5,
+        "16 1001 o": 3.1,
+        "16 1001 <": 3.5,
+        "16 1003 o": 3.7,
+        "16 1003 <": 4.1,
+      };
+
+      let correctScore = 0;
+      let incorrectScore = 0;
+
+      function getRandomKeyFromSelectedMaps() {
+        const selectedMaps = [];
+
+        if (document.getElementById("singlesCheckbox").checked) {
+          selectedMaps.push(skillsDifficulty_Singles);
+        }
+        if (document.getElementById("doublesCheckbox").checked) {
+          selectedMaps.push(skillsDifficulty_Doubles);
+        }
+        if (document.getElementById("triplesCheckbox").checked) {
+          selectedMaps.push(skillsDifficulty_Triples);
+        }
+        if (document.getElementById("quadsCheckbox").checked) {
+          selectedMaps.push(skillsDifficulty_Quads);
+        }
+
+        if (selectedMaps.length === 0) {
+          alert("Please select at least one category.");
+          return null;
+        }
+
+        const randomMap =
+          selectedMaps[Math.floor(Math.random() * selectedMaps.length)];
+        return getRandomKey(randomMap);
+      }
+
+      function getRandomKey(obj) {
+        const keys = Object.keys(obj);
+        return keys[Math.floor(Math.random() * keys.length)];
+      }
+
+      function generateOptions(correctValue) {
+        const options = new Set([correctValue]);
+        while (options.size < 3) {
+          const randomValue = parseFloat(
+            (correctValue + (Math.random() * 0.4 - 0.2)).toFixed(1)
+          );
+          options.add(randomValue);
+        }
+        return Array.from(options).sort(() => Math.random() - 0.5);
+      }
+
+      function updateScoreBoard() {
+        document.getElementById("correctScore").textContent = correctScore;
+        document.getElementById("incorrectScore").textContent = incorrectScore;
+      }
+
+      function disableAllButtons() {
+        const buttons = document.querySelectorAll(".button");
+        buttons.forEach((button) => {
+          button.disabled = true;
+        });
+      }
+
+      function renderQuestion() {
+        const key = getRandomKeyFromSelectedMaps();
+        if (!key) return;
+
+        const selectedMaps = [];
+        if (document.getElementById("singlesCheckbox").checked) {
+          selectedMaps.push(skillsDifficulty_Singles);
+        }
+        if (document.getElementById("doublesCheckbox").checked) {
+          selectedMaps.push(skillsDifficulty_Doubles);
+        }
+        if (document.getElementById("triplesCheckbox").checked) {
+          selectedMaps.push(skillsDifficulty_Triples);
+        }
+        if (document.getElementById("quadsCheckbox").checked) {
+          selectedMaps.push(skillsDifficulty_Quads);
+        }
+
+        const mapContainingKey = selectedMaps.find((map) => key in map);
+        const correctValue = mapContainingKey[key];
+        const options = generateOptions(correctValue);
+
+        document.getElementById("key").textContent = key;
+
+        const buttonsDiv = document.getElementById("buttons");
+        buttonsDiv.innerHTML = ""; // Clear previous buttons
+        options.forEach((option) => {
+          const button = document.createElement("button");
+          button.classList.add("button");
+          button.textContent = option;
+          button.onclick = () => {
+            if (option === correctValue) {
+              button.classList.add("correct");
+              correctScore++;
+              disableAllButtons();
+              setTimeout(renderQuestion, 1000); // Wait a second before showing the next question
+            } else {
+              button.classList.add("incorrect");
+              incorrectScore++;
+            }
+            updateScoreBoard();
+          };
+          buttonsDiv.appendChild(button);
+        });
+      }
+
+      document
+        .querySelectorAll('input[type="checkbox"]')
+        .forEach((checkbox) => {
+          checkbox.addEventListener("change", renderQuestion);
+        });
+
+      renderQuestion(); // Start the first question
+    </script>
+  </body>
+</html>
