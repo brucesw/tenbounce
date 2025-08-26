@@ -27,7 +27,6 @@ type HealthCheck struct {
 
 func healthRoute(e *echo.Echo, h HandlerClx) {
 	e.GET("/health", func(c echo.Context) error {
-
 		var uptime = h.nower.Now().Sub(h.startupTime)
 
 		var healthCheck = HealthCheck{

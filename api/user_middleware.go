@@ -6,7 +6,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// TODO(bruce): document
+// RequireUserMiddleware ensures a valid cookie is present, erroring otherwise.
+// Adds the user ID to the request context for downstream consumption.
 func (h HandlerClx) RequireUserMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		if userIDCookie, err := c.Cookie(CookieName_UserID); err != nil {

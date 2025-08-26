@@ -11,7 +11,10 @@ import (
 
 const CookieName_UserID string = "TENBOUNCE_USER_ID"
 
-// TODO(bruce): document
+// userID_ToCookieValue hashes the input user ID and signing secret to form a cookie to be placed on the browser
+// produces the input to userID_FromCookieValue
+// ex: 550e8400-e29b-41d4-a716-446655440000, i3MWlSX6BQqwqFKuz+tnOFGfZFYQL8ws4jtziotcHHZMDqYLtnyicenaPL7ipJ3oQJrZpocqO41akdyz77jqdg==
+// -> 550e8400-e29b-41d4-a716-446655440000|FJzgY4SioS7WZznGBxkNujMP3m4NJ_21m8erJp7JbqY=
 func userID_ToCookieValue(userID, secret string) (string, error) {
 	var mac = hmac.New(sha256.New, []byte(secret))
 	mac.Write([]byte(userID))
@@ -27,7 +30,10 @@ func userID_ToCookieValue(userID, secret string) (string, error) {
 	return cookieValue, nil
 }
 
-// TODO(bruce): document
+// userID_FromCookieValue validates the input cookie value against the signing secret
+// and returns the user ID if it matches, errors otherwise
+// ex 550e8400-e29b-41d4-a716-446655440000|FJzgY4SioS7WZznGBxkNujMP3m4NJ_21m8erJp7JbqY=, i3MWlSX6BQqwqFKuz+tnOFGfZFYQL8ws4jtziotcHHZMDqYLtnyicenaPL7ipJ3oQJrZpocqO41akdyz77jqdg==
+// -> 550e8400-e29b-41d4-a716-446655440000
 func userID_FromCookieValue(cookieValue, secret string) (string, error) {
 	var strings = strings.Split(cookieValue, "|")
 	if len(strings) != 2 {

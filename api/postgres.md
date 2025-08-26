@@ -1,4 +1,7 @@
 ## Postgres Notes
+
+Cheatsheet for doing various things with a (local) Postgres instance running via Docker.
+
 /*
 docker run \
 --name myPostgresDb \

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# docker build -t tenbounce-image .
-
 # Get the current Git commit SHA
 COMMIT_SHA=$(git rev-parse --short HEAD)
 

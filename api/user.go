@@ -10,11 +10,11 @@ import (
 func userRoutes(g *echo.Group, h HandlerClx) {
 	var userRoutes = g.Group("/users")
 
-	userRoutes.GET("/me", h.getUser)
+	userRoutes.GET("/me", h.getCurrentUser)
 	userRoutes.GET("", h.listUsers)
 }
 
-func (h HandlerClx) getUser(c echo.Context) error {
+func (h HandlerClx) getCurrentUser(c echo.Context) error {
 	var ctx = c.Request().Context()
 
 	if userID, err := contextUserID(ctx); err != nil {
