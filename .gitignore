@@ -5,3 +5,5 @@ api/commit_sha.txt
 api/clean.txt
 secrets/**
 !secrets/tenbounce-example.yaml
+
+*.DS_Store
