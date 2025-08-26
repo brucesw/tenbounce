@@ -9,6 +9,7 @@ type TenbounceClient struct {
 	client *http.Client
 }
 
+// TODO(bruce): introduce example client usage
 func NewTenbounceClient(baseURL, cookie string) (TenbounceClient, error) {
 	var client = &http.Client{}
 

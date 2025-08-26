@@ -102,8 +102,8 @@ func (h HandlerClx) createPoint(c echo.Context) error {
 	}
 }
 
-// TODO(bruce): document
-// TODO(bruce): test
+// validPointTypeID returns nil if the input model.Point is a valid type as
+// per the input point types, errors otherwise
 func validPointTypeID(point model.Point, pointTypes []model.PointType) error {
 	var validPointTypeIDs = []model.PointTypeID{}
 
