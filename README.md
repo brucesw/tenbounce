@@ -6,7 +6,7 @@ Tenbounce is web app that helps competitive trampoline athletes and coaches trac
 
 This app in particular is a rebuild of the app I built when I was in college, before I had any professional experience as a software engineer. The main focus of the app was the functionality because that's really all I was capable of. The app itself was really poorly written, and I paid for it in development and maintenance costs. I decided to rebuild portions of the app to leverage my updated skillset and to refresh my engineering skills.
 
-N.B. The backend is 100% me and the frontend is 100% ChatGPT.
+N.B. The backend is 100% me and the frontend is 100% ChatGPT.  Vibe coded.
 
 ## TODOs
 
