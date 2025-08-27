@@ -48,7 +48,47 @@ func NewMemoryRepository(nower util.Nower) *Memory {
 		},
 		{
 			ID:              uuid.NewString(),
-			Timestamp:       time.Date(2024, time.July, 21, 10, 30, 0, 0, time.UTC),
+			Timestamp:       time.Date(2024, time.July, 20, 10, 20, 0, 0, time.UTC),
+			UserID:          BSWUserID,
+			PointTypeID:     "4e4b2b1c-5063-425a-a409-71b431068f78",
+			Value:           21.01,
+			CreatedByUserID: BSWUserID,
+		},
+		{
+			ID:              uuid.NewString(),
+			Timestamp:       time.Date(2024, time.July, 20, 11, 20, 0, 0, time.UTC),
+			UserID:          BSWUserID,
+			PointTypeID:     "4e4b2b1c-5063-425a-a409-71b431068f78",
+			Value:           19.10,
+			CreatedByUserID: BSWUserID,
+		},
+		{
+			ID:              uuid.NewString(),
+			Timestamp:       time.Date(2024, time.July, 20, 12, 20, 0, 0, time.UTC),
+			UserID:          BSWUserID,
+			PointTypeID:     "4e4b2b1c-5063-425a-a409-71b431068f78",
+			Value:           18.15,
+			CreatedByUserID: BSWUserID,
+		},
+		{
+			ID:              uuid.NewString(),
+			Timestamp:       time.Date(2024, time.July, 20, 13, 20, 0, 0, time.UTC),
+			UserID:          BSWUserID,
+			PointTypeID:     "4e4b2b1c-5063-425a-a409-71b431068f78",
+			Value:           22.21,
+			CreatedByUserID: BSWUserID,
+		},
+		{
+			ID:              uuid.NewString(),
+			Timestamp:       time.Date(2024, time.July, 20, 14, 20, 0, 0, time.UTC),
+			UserID:          BSWUserID,
+			PointTypeID:     "4e4b2b1c-5063-425a-a409-71b431068f78",
+			Value:           24.15,
+			CreatedByUserID: BSWUserID,
+		},
+		{
+			ID:              uuid.NewString(),
+			Timestamp:       time.Date(2024, time.July, 21, 15, 30, 0, 0, time.UTC),
 			UserID:          BSWUserID,
 			PointTypeID:     PointTypeID_Compulsory,
 			Value:           21,
@@ -191,6 +231,58 @@ func (r *Memory) CreatePointType(p *model.PointType) error {
 	r.pointTypes = append(r.pointTypes, *p)
 
 	return nil
+}
+
+func (r *Memory) GetStatsSummary() ([]model.StatsSummary, error) {
+	var statsSummaries = []model.StatsSummary{}
+
+	for _, user := range r.users {
+		var statsSummary = model.StatsSummary{
+			UserID:   user.ID,
+			UserName: user.Name,
+		}
+
+		statsSummaries = append(statsSummaries, statsSummary)
+	}
+
+	for _, point := range r.points {
+		for _, pointType := range r.pointTypes {
+			if point.PointTypeID == pointType.ID {
+				// Create a new MiniPoint for the current point
+				miniPoint := model.MiniPoint{
+					Value:     point.Value,
+					Timestamp: point.Timestamp,
+				}
+
+				for i, statsSummary := range statsSummaries {
+					if statsSummary.UserID == point.UserID {
+						// Find the corresponding stat for the PointTypeID
+						var found bool
+						for j, stat := range statsSummaries[i].Stats {
+							if stat.PointTypeID == point.PointTypeID {
+								// Append the MiniPoint to the existing stat's Values
+								statsSummaries[i].Stats[j].Values = append(stat.Values, miniPoint)
+								found = true
+								break
+							}
+						}
+
+						// If stat for the PointTypeID wasn't found, create a new one
+						if !found {
+							newStat := model.Stat{
+								PointTypeID:   point.PointTypeID,
+								PointTypeName: pointType.Name,
+								Values:        []model.MiniPoint{miniPoint},
+							}
+							statsSummaries[i].Stats = append(statsSummaries[i].Stats, newStat)
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return statsSummaries, nil
 }
 
 func init() {

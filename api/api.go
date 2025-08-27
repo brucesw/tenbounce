@@ -22,12 +22,14 @@ type HandlerClx struct {
 	startupTime        time.Time
 	tempHardcodedUsers []UserWithSecretURL
 	nower              util.Nower
+	openAIAPIKey       string
 }
 
 func newHandlerClx(
 	repository Repository,
 	signingSecret string,
 	tempHardcodedUsers []UserWithSecretURL,
+	openAIAPIKey string,
 ) HandlerClx {
 	var nower = util.NewTimeNower()
 	var startupTime = nower.Now()
@@ -38,6 +40,7 @@ func newHandlerClx(
 		startupTime:        startupTime,
 		tempHardcodedUsers: tempHardcodedUsers,
 		nower:              nower,
+		openAIAPIKey:       openAIAPIKey,
 	}
 }
 
@@ -45,10 +48,16 @@ func NewTenbounceAPI(
 	repository Repository,
 	signingSecret string,
 	tempHardcodedUsers []UserWithSecretURL,
+	openAIAPIKey string,
 ) *echo.Echo {
 	var apiServer = echo.New()
 
-	var handlerClx = newHandlerClx(repository, signingSecret, tempHardcodedUsers)
+	var handlerClx = newHandlerClx(
+		repository,
+		signingSecret,
+		tempHardcodedUsers,
+		openAIAPIKey,
+	)
 
 	uiRoutes(apiServer, handlerClx)
 
@@ -58,6 +67,9 @@ func NewTenbounceAPI(
 
 	var apiGroup = apiServer.Group("/api")
 	apiRoutes(apiGroup, handlerClx)
+
+	var statsGroup = apiServer.Group("/stats")
+	statsRoutes(statsGroup, handlerClx)
 
 	return apiServer
 }
@@ -69,4 +81,11 @@ func apiRoutes(g *echo.Group, h HandlerClx) {
 	userRoutes(g, h)
 	pointRoutes(g, h)
 	pointTypeRoutes(g, h)
+}
+
+func statsRoutes(g *echo.Group, h HandlerClx) {
+	// Routes require user to be set
+	g.Use(h.RequireUserMiddleware)
+
+	statsRoutez(g, h)
 }

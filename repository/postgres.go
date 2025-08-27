@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"tenbounce/model"
+	"time"
 
 	_ "github.com/lib/pq"
 )
@@ -204,4 +205,110 @@ func (r *Postgres) CreatePointType(p *model.PointType) error {
 	}
 
 	return nil
+}
+
+func (r *Postgres) GetStatsSummary() ([]model.StatsSummary, error) {
+	db, err := r.lazyPostgresDB()
+	if err != nil {
+		return nil, fmt.Errorf("lazy postgres db: %w", err)
+	}
+
+	type row struct {
+		userID        string
+		userName      string
+		timestamp     time.Time
+		pointTypeID   model.PointTypeID
+		pointValue    model.PointValue
+		pointTypeName model.PointTypeName
+	}
+
+	var rows []row
+
+	queryRows, err := db.Query(`
+		SELECT
+			users.id,
+			users.name,
+			points.timestamp,
+			points.point_type_id,
+			points.value,
+			point_types.name
+		FROM points
+		LEFT JOIN users ON points.user_id = users.id
+		LEFT JOIN point_types ON points.point_type_id = point_types.id
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("db query: %w", err)
+	}
+	defer queryRows.Close()
+
+	for queryRows.Next() {
+		var r row
+
+		if err := queryRows.Scan(
+			&r.userID,
+			&r.userName,
+			&r.timestamp,
+			&r.pointTypeID,
+			&r.pointValue,
+			&r.pointTypeName,
+		); err != nil {
+			return nil, fmt.Errorf("scan row: %w", err)
+		}
+
+		rows = append(rows, r)
+	}
+
+	var statsSummaries = []model.StatsSummary{}
+
+	// Construct stats summaries based on the retrieved rows
+	for _, row := range rows {
+		var statsSummary model.StatsSummary
+		// Check if the user already exists in statsSummaries
+		found := false
+		for _, ss := range statsSummaries {
+			if ss.UserID == row.userID {
+				statsSummary = ss
+				found = true
+				break
+			}
+		}
+
+		// If the user is not found, create a new StatsSummary
+		if !found {
+			statsSummary = model.StatsSummary{
+				UserID:   row.userID,
+				UserName: row.userName,
+			}
+			statsSummaries = append(statsSummaries, statsSummary)
+		}
+
+		// Create a new MiniPoint for the current row
+		miniPoint := model.MiniPoint{
+			Value:     row.pointValue,
+			Timestamp: row.timestamp,
+		}
+
+		// Find the corresponding stat for the PointTypeID
+		var statFound bool
+		for j, stat := range statsSummary.Stats {
+			if stat.PointTypeID == row.pointTypeID {
+				// Append the MiniPoint to the existing stat's Values
+				statsSummaries[len(statsSummaries)-1].Stats[j].Values = append(stat.Values, miniPoint)
+				statFound = true
+				break
+			}
+		}
+
+		// If stat for the PointTypeID wasn't found, create a new one
+		if !statFound {
+			newStat := model.Stat{
+				PointTypeID:   row.pointTypeID,
+				PointTypeName: row.pointTypeName,
+				Values:        []model.MiniPoint{miniPoint},
+			}
+			statsSummaries[len(statsSummaries)-1].Stats = append(statsSummaries[len(statsSummaries)-1].Stats, newStat)
+		}
+	}
+
+	return statsSummaries, nil
 }

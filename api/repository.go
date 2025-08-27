@@ -6,6 +6,8 @@ type Repository interface {
 	UserRepository
 	PointRepository
 	PointTypeRepository
+
+	StatsRepository
 }
 
 type UserRepository interface {
@@ -21,4 +23,8 @@ type PointRepository interface {
 type PointTypeRepository interface {
 	ListPointTypes() ([]model.PointType, error)
 	CreatePointType(p *model.PointType) error
+}
+
+type StatsRepository interface {
+	GetStatsSummary() ([]model.StatsSummary, error)
 }

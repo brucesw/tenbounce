@@ -86,7 +86,6 @@ func (h HandlerClx) createPoint(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, "get creator user")
 	} else if _, err := h.repository.GetUser(createPointBody.UserID); err != nil {
 		return c.JSON(http.StatusInternalServerError, "get user")
-
 	} else if point, err := createPointBody.Point(creatorUser.ID, h.nower.Now()); err != nil {
 		return c.JSON(http.StatusInternalServerError, "createPointBody point")
 	} else if pointTypes, err := h.repository.ListPointTypes(); err != nil {

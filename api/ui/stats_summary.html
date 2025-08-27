@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Stats Summary</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+
+    <style>
+      .expand-btn {
+        cursor: pointer;
+        color: #007bff;
+        text-decoration: none;
+      }
+
+      .expand-btn:hover {
+        text-decoration: underline;
+      }
+
+      .user-stats-table {
+        margin-top: 20px;
+      }
+
+      /* Align user details more elegantly */
+      .user-details {
+        margin-top: 20px;
+        border-top: 1px solid #dee2e6;
+        padding-top: 20px;
+      }
+
+      .stats-summary {
+        margin-top: 10px;
+      }
+
+      /* Points section emphasis */
+      .points-section {
+        font-size: 1.1em;
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #007bff;
+      }
+
+      /* Compact stats section */
+      .stats-summary p {
+        margin-bottom: 2px;
+        font-size: 0.9em;
+        color: #6c757d;
+      }
+
+      .compact-values {
+        font-size: 0.85em;
+        color: #495057;
+      }
+
+      /* Popup and sidebar styles reused from provided page */
+      .popup {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 10px 20px;
+        background-color: #28a745;
+        color: white;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        display: none;
+        z-index: 1200;
+      }
+
+      .popup.error {
+        background-color: #dc3545;
+      }
+
+      header {
+        background-color: #f8f9fa; /* Light gray background */
+      }
+
+      .navbar {
+        display: flex;
+        justify-content: space-between; /* Space between brand and links */
+        align-items: center; /* Center vertically */
+        padding: 15px 20px; /* Padding around the navbar */
+      }
+
+      .brand {
+        font-size: 24px; /* Brand font size */
+        font-weight: bold; /* Bold brand text */
+      }
+
+      .nav-links {
+        display: flex; /* Display links in a row */
+      }
+
+      .nav-links a {
+        text-decoration: none; /* Remove underline from links */
+        color: #007bff; /* Bootstrap primary color */
+        padding: 0 15px; /* Spacing between links */
+      }
+
+      .nav-links a:hover {
+        text-decoration: underline; /* Underline on hover */
+      }
+    </style>
+
+    <script>
+      let userDataMap = {}; // Store the fetched data
+      let gptSummaryMap = {}; // Store the GPT summaries
+
+      // Fetch stats from /stats/summary and display them
+      function fetchUserStats() {
+        fetch("/stats/summary")
+          .then((response) => response.json())
+          .then((data) => {
+            // Store user data in the map
+            userDataMap = data.reduce((acc, user) => {
+              acc[user.userID] = user;
+              return acc;
+            }, {});
+
+            // Display the users and their stats immediately
+            displayUsers(data);
+
+            // Automatically forward data to /stats/summary_gpt after displaying stats
+            fetchGptSummaries(data);
+          })
+          .catch((error) => console.error("Error fetching user stats:", error));
+      }
+
+      // Display users and their basic stats
+      function displayUsers(users) {
+        const usersTable = document.getElementById("usersTable");
+        usersTable.innerHTML = "";
+        users.forEach((user) => {
+          const totalPoints = user.stats
+            ? user.stats.reduce((sum, stat) => sum + stat.values.length, 0)
+            : 0;
+
+          // Calculate today's points
+          const today = new Date().toISOString().split("T")[0];
+          const todayPoints = user.stats
+            ? user.stats.reduce((sum, stat) => {
+                return (
+                  sum +
+                  stat.values.filter((value) => {
+                    const date = new Date(value.timestamp)
+                      .toISOString()
+                      .split("T")[0];
+                    return date === today;
+                  }).length
+                );
+              }, 0)
+            : 0;
+
+          const row = `
+                <tr>
+                  <td>${user.userName}</td>
+                  <td>${totalPoints}</td>
+                  <td>${todayPoints}</td> <!-- New column for today's points -->
+                  <td>
+                    <a href="#" class="expand-btn" onclick="expandUser('${user.userID}')">⬇️</a>
+                  </td>
+                </tr>
+`;
+
+          usersTable.insertAdjacentHTML("beforeend", row);
+        });
+      }
+      // Automatically forward data to /stats/summary_gpt for additional summaries
+      function fetchGptSummaries(users) {
+        fetch("/stats/summary_gpt", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(users),
+        })
+          .then((response) => response.json())
+          .then((gptData) => {
+            // Store GPT summaries in the map for easy lookup
+            gptData.forEach((item) => {
+              const { userID, pointTypeID, summary } = item;
+              if (!gptSummaryMap[userID]) {
+                gptSummaryMap[userID] = {};
+              }
+              gptSummaryMap[userID][pointTypeID] = summary;
+            });
+
+            // Check if a user is currently expanded, and refresh its details
+            const userDetailsSection = document.getElementById("userDetails");
+            if (userDetailsSection && userDetailsSection.dataset.userId) {
+              const expandedUserId = userDetailsSection.dataset.userId;
+              expandUser(expandedUserId); // Re-expand the same user to refresh the content
+            }
+
+            console.log("GPT summaries loaded:", gptSummaryMap);
+          })
+          .catch((error) =>
+            console.error("Error fetching GPT summaries:", error)
+          );
+      }
+
+      function expandUser(userID) {
+        const userDetailsSection = document.getElementById("userDetails");
+        userDetailsSection.innerHTML = ""; // Clear existing details
+        userDetailsSection.dataset.userId = userID; // Store the expanded user ID for later refresh
+        const user = userDataMap[userID];
+
+        if (!user || !user.stats || user.stats.length === 0) {
+          userDetailsSection.innerHTML = `<p>No stats available for ${user.userName}.</p>`;
+          return;
+        }
+
+        const pointsByTypeAndDay = {};
+
+        // Group points by pointTypeID and date
+        user.stats.forEach((stat) => {
+          const pointTypeName = stat.pointTypeName;
+          const pointTypeID = stat.pointTypeID;
+
+          // Sort values by timestamp in ascending order (earliest first)
+          const sortedValues = stat.values.sort(
+            (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+          );
+
+          // Group by day for each pointTypeID
+          sortedValues.forEach((value) => {
+            const date = new Date(value.timestamp).toISOString().split("T")[0]; // Get the date part
+            if (!pointsByTypeAndDay[pointTypeID]) {
+              pointsByTypeAndDay[pointTypeID] = {
+                pointTypeName,
+                dailyValues: {},
+                allValues: [], // Store all values for summary calculations
+              };
+            }
+            if (!pointsByTypeAndDay[pointTypeID].dailyValues[date]) {
+              pointsByTypeAndDay[pointTypeID].dailyValues[date] = [];
+            }
+            pointsByTypeAndDay[pointTypeID].dailyValues[date].push(
+              value.pointValue
+            );
+            pointsByTypeAndDay[pointTypeID].allValues.push(value.pointValue); // Add value for overall summary
+          });
+        });
+
+        // Create sections for each point type ID
+        for (const pointTypeID in pointsByTypeAndDay) {
+          const { pointTypeName, dailyValues, allValues } =
+            pointsByTypeAndDay[pointTypeID];
+
+          // Calculate max, min, count, and average
+          const maxPoints = Math.max(...allValues);
+          const minPoints = Math.min(...allValues);
+          const countPoints = allValues.length;
+          const averagePoints = (
+            allValues.reduce((sum, value) => sum + value, 0) / countPoints
+          ).toFixed(2);
+
+          const statsSection = `
+      <div class="stats-summary">
+        <div class="points-section">${pointTypeName}</div>
+        <p>Stats: Max: ${maxPoints} | Min: ${minPoints} | Count: ${countPoints} | Average: ${averagePoints}</p>
+    `;
+          userDetailsSection.insertAdjacentHTML("beforeend", statsSection);
+
+          // Sort the days in descending order (newest first)
+          const sortedDays = Object.keys(dailyValues).sort(
+            (a, b) => new Date(b) - new Date(a)
+          );
+
+          // Create subsections for each day
+          sortedDays.forEach((day) => {
+            const valuesList = dailyValues[day]
+              .map((value) => value.toFixed(2))
+              .join(", "); // Create a comma-separated list of values
+            const daySection = `
+        <p>${day} (${dailyValues[day].length}) points: ${valuesList}</p>
+      `;
+            userDetailsSection.insertAdjacentHTML("beforeend", daySection);
+          });
+
+          // Add GPT summary if available
+          const gptSummary = gptSummaryMap[userID]?.[pointTypeID] || "";
+          if (gptSummary) {
+            userDetailsSection.insertAdjacentHTML(
+              "beforeend",
+              `<p><strong>Summary:</strong> ${gptSummary}</p>`
+            );
+          }
+
+          // Close the stats section
+          userDetailsSection.insertAdjacentHTML("beforeend", `</div>`);
+        }
+      }
+
+      // Fetch user stats on page load
+      window.onload = fetchUserStats;
+    </script>
+  </head>
+  <body>
+    <header>
+      <div class="navbar">
+        <div class="brand">Tenbounce</div>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/stats_summary">Stats</a>
+        </div>
+      </div>
+    </header>
+
+    <div class="container my-5">
+      <h1>User Stats Summary</h1>
+
+      <table class="table table-bordered user-stats-table">
+        <thead>
+          <tr>
+            <th>User Name</th>
+            <th>Total Points</th>
+            <th>Today's Points</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody id="usersTable">
+          <!-- User rows will be populated here -->
+        </tbody>
+      </table>
+
+      <div id="userDetails" class="user-details">
+        <!-- Expanded user stats will be displayed here -->
+      </div>
+    </div>
+
+    <div id="popup" class="popup"></div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js"
+      integrity="sha512-TPh2Oxlg1zp+kz3nFA0C5vVC6leG/6mm1z9+mA81MI5eaUVqasPLO8Cuk4gMF4gUfP5etR73rgU/8PNMsSesoQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.min.js"></script>
+  </body>
+</html>

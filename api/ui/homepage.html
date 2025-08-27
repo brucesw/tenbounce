@@ -67,6 +67,36 @@
       .popup.error {
         background-color: #dc3545;
       }
+
+      header {
+        background-color: #f8f9fa; /* Light gray background */
+      }
+
+      .navbar {
+        display: flex;
+        justify-content: space-between; /* Space between brand and links */
+        align-items: center; /* Center vertically */
+        padding: 15px 20px; /* Padding around the navbar */
+      }
+
+      .brand {
+        font-size: 24px; /* Brand font size */
+        font-weight: bold; /* Bold brand text */
+      }
+
+      .nav-links {
+        display: flex; /* Display links in a row */
+      }
+
+      .nav-links a {
+        text-decoration: none; /* Remove underline from links */
+        color: #007bff; /* Bootstrap primary color */
+        padding: 0 15px; /* Spacing between links */
+      }
+
+      .nav-links a:hover {
+        text-decoration: underline; /* Underline on hover */
+      }
     </style>
 
     <script>
@@ -353,6 +383,16 @@
   </head>
 
   <body>
+    <header>
+      <div class="navbar">
+        <div class="brand">Tenbounce</div>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/stats_summary">Stats</a>
+        </div>
+      </div>
+    </header>
+
     <div class="container my-5">
       <div class="d-flex justify-content-end align-items-center mb-4">
         <span id="userInfo" class="me-3"></span>
