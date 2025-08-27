@@ -105,11 +105,7 @@ func (h HandlerClx) createPoint(c echo.Context) error {
 // validPointTypeID returns nil if the input model.Point is a valid type as
 // per the input point types, errors otherwise
 func validPointTypeID(point model.Point, pointTypes []model.PointType) error {
-	var validPointTypeIDs = []model.PointTypeID{}
-
-	for _, pointType := range pointTypes {
-		validPointTypeIDs = append(validPointTypeIDs, pointType.ID)
-	}
+	var validPointTypeIDs = util.Map(pointTypes, func(pointType model.PointType) model.PointTypeID { return pointType.ID })
 
 	if !util.Contains(validPointTypeIDs, point.PointTypeID) {
 		return fmt.Errorf("invalid pointTypeID: %s", point.PointTypeID)
@@ -130,7 +126,8 @@ type ListPointsResponse []pointWithDetails
 
 // TODO(bruce): document
 // TODO(bruce): test
-// TODO(bruce): replace with join in db??
+// TODO(bruce): replace with join in db??  client side??
+// TODO(bruce): lean towards client side
 func NewListPointsResponse(points []model.Point, pointTypes []model.PointType, users []model.User) (ListPointsResponse, error) {
 	var pointTypeIDToName = map[model.PointTypeID]model.PointTypeName{}
 	for _, pointType := range pointTypes {
@@ -200,6 +197,7 @@ func (h HandlerClx) deletePoint(c echo.Context) error {
 			return c.JSON(http.StatusInternalServerError, fmt.Errorf("get point: %w", err))
 		}
 	} else if !(point.CreatedByUserID == userID || point.UserID == userID) {
+		// TODO(bruce): Or have permission to delete
 		return c.JSON(http.StatusBadRequest, errors.New("point must belong to or be created by user"))
 	} else if err = h.repository.DeletePoint(pointID); err != nil {
 		return c.JSON(http.StatusInternalServerError, fmt.Errorf("delete point: %w", err))
