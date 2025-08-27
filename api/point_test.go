@@ -6,6 +6,15 @@ import (
 	"testing"
 )
 
+func pointTypes(typeIDs ...string) []model.PointType {
+	return util.Map(
+		typeIDs,
+		func(typeID string) model.PointType {
+			return model.PointType{ID: model.PointTypeID(typeID)}
+		},
+	)
+}
+
 func Test_ValidPointTypeID(t *testing.T) {
 	var battery = []struct {
 		point           model.Point
@@ -14,22 +23,22 @@ func Test_ValidPointTypeID(t *testing.T) {
 	}{
 		{
 			point:           model.Point{PointTypeID: model.PointTypeID("ID1")},
-			validPointTypes: []model.PointType{{ID: model.PointTypeID("ID1")}},
+			validPointTypes: pointTypes("ID1"),
 			valid:           true,
 		},
 		{
 			point:           model.Point{PointTypeID: model.PointTypeID("ID1")},
-			validPointTypes: []model.PointType{{ID: model.PointTypeID("ID1")}, {ID: model.PointTypeID("ID2")}},
+			validPointTypes: pointTypes("ID1", "ID2"),
 			valid:           true,
 		},
 		{
 			point:           model.Point{PointTypeID: model.PointTypeID("ID1")},
-			validPointTypes: []model.PointType{{ID: model.PointTypeID("ID2")}},
+			validPointTypes: pointTypes("ID2"),
 			valid:           false,
 		},
 		{
 			point:           model.Point{PointTypeID: model.PointTypeID("ID1")},
-			validPointTypes: []model.PointType{{ID: model.PointTypeID("ID2")}, {ID: model.PointTypeID("ID3")}},
+			validPointTypes: pointTypes("ID2", "ID3"),
 			valid:           false,
 		},
 	}
