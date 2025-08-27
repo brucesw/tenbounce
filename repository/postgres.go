@@ -45,6 +45,7 @@ func (r *Postgres) GetUser(userID string) (model.User, error) {
 
 	var user = model.User{}
 
+	// TODO(bruce): Enumerate columns explicitly
 	var row = db.QueryRow("SELECT * FROM users WHERE id = $1", userID)
 	if err := row.Scan(&user.ID, &user.Name, &user.Email); err != nil {
 		if err == sql.ErrNoRows {
@@ -65,6 +66,7 @@ func (r *Postgres) ListUsers() ([]model.User, error) {
 
 	var users = []model.User{}
 
+	// TODO(bruce): Enumerate columns explicitly
 	rows, err := db.Query("SELECT * FROM users")
 	if err != nil {
 		return nil, fmt.Errorf("db query: %w", err)
@@ -92,6 +94,7 @@ func (r *Postgres) GetPoint(pointID string) (model.Point, error) {
 
 	var point = model.Point{}
 
+	// TODO(bruce): Enumerate columns explicitly
 	var row = db.QueryRow("SELECT * FROM points WHERE id = $1", pointID)
 	if err := row.Scan(&point.ID, &point.Timestamp, &point.UserID, &point.PointTypeID, &point.Value, &point.CreatedByUserID); err != nil {
 		if err == sql.ErrNoRows {
@@ -112,6 +115,7 @@ func (r *Postgres) ListPoints(userID string) ([]model.Point, error) {
 
 	var points = []model.Point{}
 
+	// TODO(bruce): Enumerate columns explicitly
 	rows, err := db.Query("SELECT * FROM points WHERE user_id = $1", userID)
 	if err != nil {
 		return nil, fmt.Errorf("db query: %w", fmt.Errorf("db query: %w", err))
@@ -167,6 +171,7 @@ func (r *Postgres) ListPointTypes() ([]model.PointType, error) {
 
 	var pointTypes = []model.PointType{}
 
+	// TODO(bruce): Enumerate columns explicitly
 	rows, err := db.Query("SELECT * FROM point_types")
 	if err != nil {
 		return nil, fmt.Errorf("db query: %w", err)

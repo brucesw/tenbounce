@@ -22,6 +22,11 @@ var hardcodedUsers []model.User
 var BSWUserID string = "550e8400-e29b-41d4-a716-446655440000"
 var DTherrUserID string = "123e4567-e89b-12d3-a456-426614174000"
 
+var PointTypeID_Compulsory = model.PointTypeID("4e4b2b1c-5063-425a-a409-71b431068f78")
+var PointTypeID_Optional = model.PointTypeID("0d1b30ef-00d4-41d6-8581-b8d554752816")
+var PointTypeID_Tenbounce = model.PointTypeID("dade4383-d869-4562-a680-88cb38f9972a")
+var PointTypeID_TenDoubles = model.PointTypeID("8640f8e9-0cf6-4be4-b182-d40c21a44067")
+
 type Memory struct {
 	points     []model.Point
 	users      []model.User
@@ -37,7 +42,7 @@ func NewMemoryRepository(nower util.Nower) *Memory {
 			ID:              uuid.NewString(),
 			Timestamp:       time.Date(2024, time.July, 20, 10, 20, 0, 0, time.UTC),
 			UserID:          BSWUserID,
-			PointTypeID:     "4e4b2b1c-5063-425a-a409-71b431068f78",
+			PointTypeID:     PointTypeID_Compulsory,
 			Value:           20.21,
 			CreatedByUserID: BSWUserID,
 		},
@@ -45,7 +50,7 @@ func NewMemoryRepository(nower util.Nower) *Memory {
 			ID:              uuid.NewString(),
 			Timestamp:       time.Date(2024, time.July, 21, 10, 30, 0, 0, time.UTC),
 			UserID:          BSWUserID,
-			PointTypeID:     "4e4b2b1c-5063-425a-a409-71b431068f78",
+			PointTypeID:     PointTypeID_Compulsory,
 			Value:           21,
 			CreatedByUserID: BSWUserID,
 		},
@@ -53,7 +58,7 @@ func NewMemoryRepository(nower util.Nower) *Memory {
 			ID:              uuid.NewString(),
 			Timestamp:       time.Date(2024, time.July, 22, 10, 40, 0, 0, time.UTC),
 			UserID:          BSWUserID,
-			PointTypeID:     "0d1b30ef-00d4-41d6-8581-b8d554752816",
+			PointTypeID:     PointTypeID_Tenbounce,
 			Value:           19.00,
 			CreatedByUserID: BSWUserID,
 		},
@@ -61,7 +66,7 @@ func NewMemoryRepository(nower util.Nower) *Memory {
 			ID:              uuid.NewString(),
 			Timestamp:       time.Date(2024, time.July, 23, 10, 40, 0, 0, time.UTC),
 			UserID:          BSWUserID,
-			PointTypeID:     "0d1b30ef-00d4-41d6-8581-b8d554752816",
+			PointTypeID:     PointTypeID_Tenbounce,
 			Value:           18,
 			CreatedByUserID: BSWUserID,
 		},
@@ -69,7 +74,7 @@ func NewMemoryRepository(nower util.Nower) *Memory {
 			ID:              uuid.NewString(),
 			Timestamp:       time.Date(2024, time.August, 1, 10, 20, 0, 0, time.UTC),
 			UserID:          DTherrUserID,
-			PointTypeID:     "4e4b2b1c-5063-425a-a409-71b431068f78",
+			PointTypeID:     PointTypeID_Compulsory,
 			Value:           20.21,
 			CreatedByUserID: BSWUserID,
 		},
@@ -77,7 +82,7 @@ func NewMemoryRepository(nower util.Nower) *Memory {
 			ID:              uuid.NewString(),
 			Timestamp:       time.Date(2024, time.August, 2, 10, 30, 0, 0, time.UTC),
 			UserID:          DTherrUserID,
-			PointTypeID:     "4e4b2b1c-5063-425a-a409-71b431068f78",
+			PointTypeID:     PointTypeID_Compulsory,
 			Value:           21,
 			CreatedByUserID: BSWUserID,
 		},
@@ -85,7 +90,7 @@ func NewMemoryRepository(nower util.Nower) *Memory {
 			ID:              uuid.NewString(),
 			Timestamp:       time.Date(2024, time.August, 3, 10, 40, 0, 0, time.UTC),
 			UserID:          DTherrUserID,
-			PointTypeID:     "0d1b30ef-00d4-41d6-8581-b8d554752816",
+			PointTypeID:     PointTypeID_Tenbounce,
 			Value:           19.00,
 			CreatedByUserID: BSWUserID,
 		},
@@ -93,19 +98,19 @@ func NewMemoryRepository(nower util.Nower) *Memory {
 
 	var pointTypes = []model.PointType{
 		{
-			ID:   "4e4b2b1c-5063-425a-a409-71b431068f78",
+			ID:   PointTypeID_Compulsory,
 			Name: "Compulsory Routine",
 		},
 		{
-			ID:   "0d1b30ef-00d4-41d6-8581-b8d554752816",
+			ID:   PointTypeID_Optional,
 			Name: "Optional Routine",
 		},
 		{
-			ID:   "dade4383-d869-4562-a680-88cb38f9972a",
+			ID:   PointTypeID_Tenbounce,
 			Name: "Tenbounce",
 		},
 		{
-			ID:   "8640f8e9-0cf6-4be4-b182-d40c21a44067",
+			ID:   PointTypeID_TenDoubles,
 			Name: "Ten Doubles",
 		},
 	}
